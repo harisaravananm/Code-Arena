@@ -302,7 +302,7 @@ body{font-family:'JetBrains Mono',monospace;background:var(--bg);color:var(--tex
 //  CONFIG — EmailJS  (https://www.emailjs.com — free account)
 //  Fill these 3 values after creating your EmailJS account
 // ══════════════════════════════════════════════════════════════
-const EMAILJS_SERVICE_ID  = 'service_dr2zotg';   // e.g. service_abc123
+const EMAILJS_SERVICE_ID  = 'service_gmz45z3';   // e.g. service_abc123
 const EMAILJS_TEMPLATE_ID = 'template_yxjotox';  // e.g. template_xyz789
 const EMAILJS_PUBLIC_KEY  = '0pL_0pR0N8Gb1eyK1';   // e.g. aBcDeFgHiJkLm
 const REPORT_TO_EMAIL     = 'mharisaravanan@gmail.com';   // your email address
@@ -312,73 +312,73 @@ const REPORT_TO_EMAIL     = 'mharisaravanan@gmail.com';   // your email address
 // ══════════════════════════════════════════════════════════════
 const QS = [
   {
-    title:'Sum of Two Numbers', diff:'Easy',
-    desc:'Given two integers A and B (each on a separate line), print their sum.',
-    inf:'Line 1: integer A\nLine 2: integer B',
-    outf:'A + B',
-    con:'-10^9 ≤ A, B ≤ 10^9',
-    tc:[
-      {i:'3\n5',   e:'8',   v:true},
-      {i:'-4\n10', e:'6',   v:true},
-      {i:'0\n0',   e:'0',   v:false},
-      {i:'100\n200',e:'300',v:false},
-      {i:'-999\n1000',e:'1',v:false},
-    ]
-  },
-  {
-    title:'Reverse a String', diff:'Easy',
-    desc:'Given a string S (no spaces), print it reversed.',
-    inf:'A single string',
-    outf:'Reversed string',
-    con:'1 ≤ |S| ≤ 10^5',
-    tc:[
-      {i:'hello',      e:'olleh',       v:true},
-      {i:'abcde',      e:'edcba',       v:true},
-      {i:'a',          e:'a',           v:false},
-      {i:'racecar',    e:'racecar',     v:false},
-      {i:'Programming',e:'gnimmargorP', v:false},
-    ]
-  },
-  {
-    title:'Prime Check', diff:'Medium',
-    desc:'Given an integer N, print YES if prime, otherwise NO.',
+    title:'Palindrome Number', diff:'Easy',
+    desc:'Given an integer N, print <b>Palindrome</b> if it reads the same forward and backward, otherwise print <b>Not Palindrome</b>. Negative numbers are never palindromes.',
     inf:'A single integer N',
-    outf:'YES or NO',
-    con:'1 ≤ N ≤ 10^6',
+    outf:'Palindrome  or  Not Palindrome',
+    con:'-10^9 ≤ N ≤ 10^9',
     tc:[
-      {i:'7',  e:'YES', v:true},
-      {i:'10', e:'NO',  v:true},
-      {i:'2',  e:'YES', v:false},
-      {i:'1',  e:'NO',  v:false},
-      {i:'97', e:'YES', v:false},
+      {i:'121',   e:'Palindrome',     v:true},
+      {i:'123',   e:'Not Palindrome', v:true},
+      {i:'0',     e:'Palindrome',     v:false},
+      {i:'1221',  e:'Palindrome',     v:false},
+      {i:'-121',  e:'Not Palindrome', v:false},
     ]
   },
   {
-    title:'Nth Fibonacci', diff:'Medium',
-    desc:'Print the N-th Fibonacci number (0-indexed). Sequence: 0,1,1,2,3,5,8,13,...',
+    title:'Sum of Even Numbers', diff:'Easy',
+    desc:'Given an integer N, find the sum of all even numbers from 1 to N (inclusive).',
     inf:'A single integer N',
-    outf:'The N-th Fibonacci number',
-    con:'0 ≤ N ≤ 30',
+    outf:'The sum of even numbers from 1 to N',
+    con:'1 ≤ N ≤ 10^9',
     tc:[
-      {i:'5',  e:'5',   v:true},
-      {i:'10', e:'55',  v:true},
-      {i:'0',  e:'0',   v:false},
-      {i:'1',  e:'1',   v:false},
-      {i:'15', e:'610', v:false},
+      {i:'10',  e:'30',   v:true},
+      {i:'6',   e:'12',   v:true},
+      {i:'1',   e:'0',    v:false},
+      {i:'4',   e:'6',    v:false},
+      {i:'100', e:'2550', v:false},
     ]
   },
   {
-    title:'Count Vowels', diff:'Medium',
-    desc:'Given a string S, count vowels (a,e,i,o,u — case insensitive).',
-    inf:'A single string',
-    outf:'Count of vowels',
-    con:'1 ≤ |S| ≤ 10^5',
+    title:'Second Largest Element', diff:'Moderate',
+    desc:'Given an array of N integers, find the second largest distinct element.',
+    inf:'Line 1: integer N\nLine 2: N space-separated integers',
+    outf:'The second largest distinct element',
+    con:'2 ≤ N ≤ 10^5, elements may repeat',
     tc:[
-      {i:'hello',       e:'2', v:true},
-      {i:'AEIOU',       e:'5', v:true},
-      {i:'rhythm',      e:'0', v:false},
-      {i:'programming', e:'3', v:false},
-      {i:'OpenAI',      e:'4', v:false},
+      {i:'5\n10 20 4 45 99', e:'45', v:true},
+      {i:'3\n1 2 3',         e:'2',  v:true},
+      {i:'4\n3 1 4 2',       e:'3',  v:false},
+      {i:'5\n1 1 2 2 3',     e:'2',  v:false},
+      {i:'2\n5 10',          e:'5',  v:false},
+    ]
+  },
+  {
+    title:'Frequency of Characters', diff:'Moderate',
+    desc:'Given a lowercase string, print the frequency of each character that appears, in alphabetical order. Format: <b>char space count</b> on each line.',
+    inf:'A single lowercase string (no spaces)',
+    outf:'Each character and its frequency, alphabetically',
+    con:'1 ≤ |S| ≤ 10^5, only lowercase letters',
+    tc:[
+      {i:'banana',      e:'a 3\nb 1\nn 2',                              v:true},
+      {i:'hello',       e:'e 1\nh 1\nl 2\no 1',                        v:true},
+      {i:'aabb',        e:'a 2\nb 2',                                     v:false},
+      {i:'abc',         e:'a 1\nb 1\nc 1',                               v:false},
+      {i:'programming', e:'a 1\ng 2\ni 1\nm 2\nn 1\no 1\np 1\nr 2', v:false},
+    ]
+  },
+  {
+    title:'Power Tower Modulo', diff:'Hard',
+    desc:'Given integer N, compute N^(N^(N^...)) (tower of N, repeated N times) mod 10^9+7.\n\nFirst line: T (test cases). Next T lines: integer N.',
+    inf:'Line 1: T\nNext T lines: integer N',
+    outf:'T lines, each with the answer mod 10^9+7',
+    con:'1 ≤ T ≤ 10^5, 1 ≤ N ≤ 10^12',
+    tc:[
+      {i:'3\n1\n2\n3', e:'1\n4\n597431563', v:true},
+      {i:'1\n1',         e:'1',                  v:true},
+      {i:'1\n2',         e:'4',                  v:false},
+      {i:'2\n1\n2',     e:'1\n4',              v:false},
+      {i:'1\n3',         e:'597431563',          v:false},
     ]
   },
 ];
@@ -387,34 +387,10 @@ const QS = [
 //  STARTER TEMPLATES
 // ══════════════════════════════════════════════════════════════
 const TPL = {
-  python:[
-    'a = int(input())\nb = int(input())\nprint(a + b)',
-    's = input()\nprint(s[::-1])',
-    'n = int(input())\ndef is_prime(n):\n    if n < 2: return False\n    i = 2\n    while i*i <= n:\n        if n % i == 0: return False\n        i += 1\n    return True\nprint("YES" if is_prime(n) else "NO")',
-    'n = int(input())\na, b = 0, 1\nif n == 0:\n    print(0)\nelse:\n    for _ in range(n - 1):\n        a, b = b, a + b\n    print(b)',
-    's = input()\nprint(sum(1 for c in s if c.lower() in "aeiou"))',
-  ],
-  c:[
-    '#include <stdio.h>\nint main(){\n    long long a,b;\n    scanf("%lld %lld",&a,&b);\n    printf("%lld\\n",a+b);\n    return 0;\n}',
-    '#include <stdio.h>\n#include <string.h>\nint main(){\n    char s[100002];\n    scanf("%s",s);\n    int n=strlen(s);\n    for(int i=n-1;i>=0;i--) putchar(s[i]);\n    putchar(\'\\n\');\n    return 0;\n}',
-    '#include <stdio.h>\nint prime(int n){\n    if(n<2) return 0;\n    for(int i=2;(long long)i*i<=n;i++) if(n%i==0) return 0;\n    return 1;\n}\nint main(){\n    int n; scanf("%d",&n);\n    printf("%s\\n",prime(n)?"YES":"NO");\n    return 0;\n}',
-    '#include <stdio.h>\nint main(){\n    int n; scanf("%d",&n);\n    long long a=0,b=1;\n    if(n==0){printf("0\\n");return 0;}\n    for(int i=2;i<=n;i++){long long c=a+b;a=b;b=c;}\n    printf("%lld\\n",b);\n    return 0;\n}',
-    '#include <stdio.h>\n#include <string.h>\nint main(){\n    char s[100002]; scanf("%s",s);\n    int cnt=0;\n    for(int i=0;s[i];i++){\n        char c=s[i]|32;\n        if(c==\'a\'||c==\'e\'||c==\'i\'||c==\'o\'||c==\'u\') cnt++;\n    }\n    printf("%d\\n",cnt);\n    return 0;\n}',
-  ],
-  cpp:[
-    '#include<iostream>\nusing namespace std;\nint main(){\n    long long a,b;\n    cin>>a>>b;\n    cout<<a+b<<endl;\n}',
-    '#include<iostream>\n#include<algorithm>\nusing namespace std;\nint main(){\n    string s; cin>>s;\n    reverse(s.begin(),s.end());\n    cout<<s<<endl;\n}',
-    '#include<iostream>\nusing namespace std;\nbool prime(int n){\n    if(n<2) return false;\n    for(int i=2;(long long)i*i<=n;i++) if(n%i==0) return false;\n    return true;\n}\nint main(){\n    int n; cin>>n;\n    cout<<(prime(n)?"YES":"NO")<<endl;\n}',
-    '#include<iostream>\nusing namespace std;\nint main(){\n    int n; cin>>n;\n    long long a=0,b=1;\n    if(n==0){cout<<0;return 0;}\n    for(int i=2;i<=n;i++){long long c=a+b;a=b;b=c;}\n    cout<<b<<endl;\n}',
-    '#include<iostream>\nusing namespace std;\nint main(){\n    string s; cin>>s;\n    int cnt=0;\n    for(char c:s){\n        c=tolower(c);\n        if(c==\'a\'||c==\'e\'||c==\'i\'||c==\'o\'||c==\'u\') cnt++;\n    }\n    cout<<cnt<<endl;\n}',
-  ],
-  java:[
-    'import java.util.Scanner;\npublic class Main{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        long a=sc.nextLong(),b=sc.nextLong();\n        System.out.println(a+b);\n    }\n}',
-    'import java.util.Scanner;\npublic class Main{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        String s=sc.next();\n        System.out.println(new StringBuilder(s).reverse());\n    }\n}',
-    'import java.util.Scanner;\npublic class Main{\n    static boolean prime(int n){\n        if(n<2) return false;\n        for(int i=2;(long)i*i<=n;i++) if(n%i==0) return false;\n        return true;\n    }\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        System.out.println(prime(sc.nextInt())?"YES":"NO");\n    }\n}',
-    'import java.util.Scanner;\npublic class Main{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        int n=sc.nextInt();\n        long a=0,b=1;\n        if(n==0){System.out.println(0);return;}\n        for(int i=2;i<=n;i++){long c=a+b;a=b;b=c;}\n        System.out.println(b);\n    }\n}',
-    'import java.util.Scanner;\npublic class Main{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        String s=sc.next();\n        int cnt=0;\n        for(char c:s.toLowerCase().toCharArray())\n            if("aeiou".indexOf(c)>=0) cnt++;\n        System.out.println(cnt);\n    }\n}',
-  ],
+  python:['# Write your code here\n','# Write your code here\n','# Write your code here\n','# Write your code here\n','# Write your code here\n'],
+  c:     ['// Write your code here\n','// Write your code here\n','// Write your code here\n','// Write your code here\n','// Write your code here\n'],
+  cpp:   ['// Write your code here\n','// Write your code here\n','// Write your code here\n','// Write your code here\n','// Write your code here\n'],
+  java:  ['// Write your code here\n','// Write your code here\n','// Write your code here\n','// Write your code here\n','// Write your code here\n'],
 };
 
 // ══════════════════════════════════════════════════════════════
