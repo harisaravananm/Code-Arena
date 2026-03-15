@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeArena — Programming Contest</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c10;
+    --panel: #0d1117;
+    --border: #1e2a38;
+    --accent: #00e5ff;
+    --accent2: #7c3aed;
+    --green: #00ff88;
+    --red: #ff4d6d;
+    --yellow: #ffd166;
+    --text: #c9d6e3;
+    --dim: #506070;
+    --card: #111820;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 50% at 20% -10%, rgba(0,229,255,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 110%, rgba(124,58,237,0.08) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; position: relative; z-index: 1; }
+  .screen.active { display: flex; }
+
+  /* ── LOGIN ── */
+  #loginScreen {
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  .login-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 3rem;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 0 60px rgba(0,229,255,0.05);
+    animation: fadeUp .5s ease;
+  }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+  .brand { text-align: center; margin-bottom: 2.5rem; }
+  .brand-logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .brand-sub { color: var(--dim); font-size: 0.75rem; margin-top: .4rem; letter-spacing: 2px; text-transform: uppercase; }
+  .field-group { margin-bottom: 1.2rem; }
+  .field-label { display: block; font-size: 0.7rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dim); margin-bottom: .5rem; }
+  .field-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: .75rem 1rem;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .field-input:focus { border-color: var(--accent); }
+  .btn-primary {
+    width: 100%;
+    padding: .85rem;
+    background: linear-gradient(135deg, var(--accent), #0099bb);
+    border: none;
+    border-radius: 8px;
+    color: #000;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    letter-spacing: .5px;
+    transition: opacity .2s, transform .1s;
+    margin-top: .5rem;
+  }
+  .btn-primary:hover { opacity: .9; }
+  .btn-primary:active { transform: scale(.98); }
+  .rules {
+    margin-top: 2rem;
+    padding: 1rem;
+    background: rgba(0,229,255,0.04);
+    border: 1px solid rgba(0,229,255,0.1);
+    border-radius: 8px;
+    font-size: 0.73rem;
+    color: var(--dim);
+    line-height: 1.9;
+  }
+  .rules strong { color: var(--accent); }
+
+  /* ── CONTEST LAYOUT ── */
+  #contestScreen {
+    min-height: 100vh;
+    flex-direction: column;
+  }
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .75rem 1.5rem;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    gap: 1rem;
+  }
+  .topbar-brand {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .user-pill {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: .3rem .9rem;
+    font-size: 0.75rem;
+    color: var(--dim);
+  }
+  .user-pill span { color: var(--accent); }
+  .timer-display {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: .4rem 1rem;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--green);
+    transition: color .3s;
+  }
+  .timer-display.warning { color: var(--yellow); border-color: var(--yellow); }
+  .timer-display.danger { color: var(--red); border-color: var(--red); animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+  .q-nav {
+    display: flex;
+    gap: .5rem;
+    padding: .75rem 1.5rem;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .q-dot {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--dim);
+    font-size: .8rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .2s;
+    position: relative;
+  }
+  .q-dot.current { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.08); }
+  .q-dot.solved { border-color: var(--green); background: rgba(0,255,136,0.1); color: var(--green); }
+  .q-dot.solved::after { content:'✓'; position:absolute; top:-6px;right:-6px; font-size:.6rem; background:var(--green); color:#000; border-radius:50%; width:14px;height:14px;display:flex;align-items:center;justify-content:center; }
+
+  .contest-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    flex: 1;
+    overflow: hidden;
+    height: calc(100vh - 115px);
+  }
+  .problem-panel {
+    padding: 1.5rem;
+    overflow-y: auto;
+    border-right: 1px solid var(--border);
+    background: var(--panel);
+  }
+  .editor-panel {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Problem */
+  .problem-tag {
+    display: inline-block;
+    font-size: .65rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: .25rem .7rem;
+    border-radius: 20px;
+    border: 1px solid var(--accent2);
+    color: var(--accent2);
+    margin-bottom: 1rem;
+  }
+  .problem-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-bottom: .75rem;
+    color: #fff;
+  }
+  .problem-desc {
+    font-size: .82rem;
+    line-height: 1.8;
+    color: var(--text);
+    margin-bottom: 1.2rem;
+  }
+  .io-label {
+    font-size: .65rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--dim);
+    margin-bottom: .4rem;
+    margin-top: 1rem;
+  }
+  .io-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: .75rem 1rem;
+    font-size: .8rem;
+    line-height: 1.7;
+    color: var(--accent);
+    white-space: pre;
+  }
+  .tc-grid { display: flex; flex-direction: column; gap: .5rem; margin-top: .5rem; }
+  .tc-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: .5rem;
+    align-items: center;
+    padding: .5rem .75rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: .75rem;
+  }
+  .tc-badge {
+    font-size: .6rem;
+    padding: .15rem .5rem;
+    border-radius: 12px;
+    text-align: center;
+    font-weight: 600;
+  }
+  .tc-badge.pass { background: rgba(0,255,136,0.15); color: var(--green); border: 1px solid var(--green); }
+  .tc-badge.fail { background: rgba(255,77,109,0.15); color: var(--red); border: 1px solid var(--red); }
+  .tc-badge.pending { background: rgba(80,96,112,0.2); color: var(--dim); border: 1px solid var(--border); }
+
+  /* Editor */
+  .editor-toolbar {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .6rem 1rem;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .lang-select {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .8rem;
+    padding: .35rem .75rem;
+    outline: none;
+    cursor: pointer;
+  }
+  .lang-select:focus { border-color: var(--accent); }
+  .btn-run {
+    background: rgba(0,229,255,0.1);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    border-radius: 6px;
+    padding: .35rem 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .8rem;
+    cursor: pointer;
+    transition: background .2s;
+    display: flex; align-items: center; gap: .4rem;
+  }
+  .btn-run:hover { background: rgba(0,229,255,0.2); }
+  .btn-run:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-submit {
+    background: rgba(0,255,136,0.1);
+    border: 1px solid var(--green);
+    color: var(--green);
+    border-radius: 6px;
+    padding: .35rem 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .8rem;
+    cursor: pointer;
+    transition: background .2s;
+    display: flex; align-items: center; gap: .4rem;
+    margin-left: auto;
+  }
+  .btn-submit:hover { background: rgba(0,255,136,0.2); }
+  .btn-submit:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-report {
+    background: rgba(124,58,237,0.1);
+    border: 1px solid var(--accent2);
+    color: var(--accent2);
+    border-radius: 6px;
+    padding: .35rem 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .8rem;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .btn-report:hover { background: rgba(124,58,237,0.2); }
+
+  #codeEditor {
+    flex: 1;
+    background: var(--bg);
+    border: none;
+    outline: none;
+    color: #a8d8a8;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .82rem;
+    line-height: 1.7;
+    padding: 1rem 1.2rem;
+    resize: none;
+    tab-size: 4;
+  }
+  .console-panel {
+    height: 180px;
+    border-top: 1px solid var(--border);
+    background: var(--panel);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .console-header {
+    padding: .4rem 1rem;
+    font-size: .65rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--dim);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: .5rem;
+  }
+  .console-dot { width:8px;height:8px;border-radius:50%; }
+  #consoleOut {
+    flex: 1;
+    overflow-y: auto;
+    padding: .75rem 1rem;
+    font-size: .78rem;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    color: var(--text);
+  }
+
+  /* ── REPORT SCREEN ── */
+  #reportScreen {
+    min-height: 100vh;
+    flex-direction: column;
+    padding: 2rem;
+    align-items: center;
+  }
+  .report-card {
+    width: 100%;
+    max-width: 860px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    animation: fadeUp .4s ease;
+  }
+  .report-header {
+    background: linear-gradient(135deg, rgba(0,229,255,0.08), rgba(124,58,237,0.08));
+    border-bottom: 1px solid var(--border);
+    padding: 2rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .report-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #fff;
+  }
+  .report-meta { font-size: .8rem; color: var(--dim); margin-top: .25rem; }
+  .score-badge {
+    background: var(--bg);
+    border: 2px solid var(--accent);
+    border-radius: 12px;
+    padding: .75rem 1.5rem;
+    text-align: center;
+  }
+  .score-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .score-label { font-size: .65rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dim); }
+  .report-body { padding: 2rem 2.5rem; }
+  .report-q {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .report-q-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .75rem; }
+  .report-q-title { font-weight: 700; font-size: .9rem; color: #fff; }
+  .status-chip {
+    font-size: .65rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: .25rem .75rem;
+    border-radius: 20px;
+    font-weight: 700;
+  }
+  .status-chip.accepted { background: rgba(0,255,136,0.15); color: var(--green); border: 1px solid var(--green); }
+  .status-chip.attempted { background: rgba(255,209,102,0.15); color: var(--yellow); border: 1px solid var(--yellow); }
+  .status-chip.not-attempted { background: rgba(80,96,112,0.2); color: var(--dim); border: 1px solid var(--border); }
+  .report-q-detail { font-size: .78rem; color: var(--dim); line-height: 1.8; }
+  .report-q-detail .hl { color: var(--text); }
+  .report-actions { display: flex; gap: 1rem; margin-top: 1.5rem; justify-content: flex-end; flex-wrap: wrap; }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--dim);
+    border-radius: 8px;
+    padding: .6rem 1.2rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .8rem;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+  .progress-bar-wrap { background: var(--bg); border-radius: 4px; overflow: hidden; height: 6px; margin-top: .5rem; }
+  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--green)); border-radius: 4px; transition: width .5s ease; }
+
+  /* spinner */
+  .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(0,229,255,0.3); border-top-color: var(--accent); border-radius: 50%; animation: spin .6s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* toast */
+  .toast {
+    position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: .75rem 1.5rem;
+    font-size: .82rem; z-index: 9999;
+    animation: toastIn .3s ease;
+    display: none;
+  }
+  .toast.show { display: block; }
+  .toast.success { border-color: var(--green); color: var(--green); }
+  .toast.error { border-color: var(--red); color: var(--red); }
+  @keyframes toastIn { from { opacity:0; bottom:1rem; } to { opacity:1; bottom:2rem; } }
+
+  /* mobile responsive */
+  @media (max-width: 768px) {
+    .contest-body { grid-template-columns: 1fr; height: auto; overflow: visible; }
+    .problem-panel { border-right: none; border-bottom: 1px solid var(--border); height: auto; }
+    #codeEditor { height: 280px; }
+    .console-panel { height: 150px; }
+  }
+
+  /* scroll bar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ─── LOGIN ─── -->
+<div id="loginScreen" class="screen active">
+  <div class="login-box">
+    <div class="brand">
+      <div class="brand-logo">⌨ CodeArena</div>
+      <div class="brand-sub">Programming Contest</div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Full Name</label>
+      <input class="field-input" id="nameInput" type="text" placeholder="Enter your full name" autocomplete="off">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Roll Number / ID</label>
+      <input class="field-input" id="rollInput" type="text" placeholder="e.g. 22CS001" autocomplete="off">
+    </div>
+    <button class="btn-primary" onclick="startContest()">Start Contest →</button>
+    <div class="rules">
+      <strong>Rules:</strong><br>
+      · 5 questions · 75 minutes total<br>
+      · All test cases must pass to proceed<br>
+      · Languages: C, C++, Python, Java<br>
+      · Switching tabs triggers auto-submission<br>
+      · Report generated at end or on finish
+    </div>
+  </div>
+</div>
+
+<!-- ─── CONTEST ─── -->
+<div id="contestScreen" class="screen">
+  <div class="topbar">
+    <div class="topbar-brand">⌨ CodeArena</div>
+    <div class="user-pill">👤 <span id="topUser">—</span></div>
+    <div class="timer-display" id="timerDisplay">75:00</div>
+    <button class="btn-report" onclick="finishContest()">📋 Finish & Report</button>
+  </div>
+  <div class="q-nav" id="qNav"></div>
+  <div class="contest-body">
+    <!-- Problem -->
+    <div class="problem-panel" id="problemPanel"></div>
+    <!-- Editor -->
+    <div class="editor-panel">
+      <div class="editor-toolbar">
+        <select class="lang-select" id="langSelect" onchange="switchLang()">
+          <option value="c">C (GCC)</option>
+          <option value="cpp">C++ (G++)</option>
+          <option value="python" selected>Python 3</option>
+          <option value="java">Java</option>
+        </select>
+        <button class="btn-run" id="btnRun" onclick="runCode()">▶ Run Tests</button>
+        <button class="btn-submit" id="btnSubmit" onclick="submitQuestion()">✓ Submit & Next</button>
+      </div>
+      <textarea id="codeEditor" spellcheck="false" placeholder="// Write your code here..."></textarea>
+      <div class="console-panel">
+        <div class="console-header">
+          <span class="console-dot" style="background:var(--red)"></span>
+          <span class="console-dot" style="background:var(--yellow)"></span>
+          <span class="console-dot" style="background:var(--green)"></span>
+          Console Output
+        </div>
+        <div id="consoleOut">// Output will appear here after running...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── REPORT ─── -->
+<div id="reportScreen" class="screen">
+  <div class="report-card">
+    <div class="report-header">
+      <div>
+        <div class="report-title">Contest Report</div>
+        <div class="report-meta" id="reportMeta"></div>
+      </div>
+      <div class="score-badge">
+        <div class="score-num" id="reportScore">0/5</div>
+        <div class="score-label">Questions Solved</div>
+      </div>
+    </div>
+    <div class="report-body">
+      <div id="reportContent"></div>
+      <div id="sheetStatus" style="text-align:center;font-size:.75rem;color:var(--dim);margin-bottom:.75rem;min-height:1.2rem;"></div>
+      <div class="report-actions">
+        <button class="btn-outline" onclick="downloadReport()">⬇ Download Report</button>
+        <button class="btn-outline" onclick="window.location.reload()">↺ New Session</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+//  DATA — 5 Questions
+// ─────────────────────────────────────────────────────────────────────────────
+const QUESTIONS = [
+  {
+    id: 1,
+    title: "Sum of Two Numbers",
+    difficulty: "Easy",
+    description: `Given two integers A and B on separate lines, print their sum.`,
+    inputFormat: `Line 1: integer A\nLine 2: integer B`,
+    outputFormat: `A single integer: A + B`,
+    constraints: `-10^9 ≤ A, B ≤ 10^9`,
+    examples: [{ input: "3\n5", output: "8" }, { input: "-4\n10", output: "6" }],
+    testCases: [
+      { input: "3\n5",        expected: "8",    visible: true  },
+      { input: "-4\n10",      expected: "6",    visible: true  },
+      { input: "0\n0",        expected: "0",    visible: false },
+      { input: "100\n200",    expected: "300",  visible: false },
+      { input: "-999\n1000",  expected: "1",    visible: false },
+    ],
+  },
+  {
+    id: 2,
+    title: "Reverse a String",
+    difficulty: "Easy",
+    description: `Given a string S, print it reversed.`,
+    inputFormat: `A single string (no spaces)`,
+    outputFormat: `The reversed string`,
+    constraints: `1 ≤ |S| ≤ 10^5`,
+    examples: [{ input: "hello", output: "olleh" }, { input: "abcde", output: "edcba" }],
+    testCases: [
+      { input: "hello",       expected: "olleh",     visible: true  },
+      { input: "abcde",       expected: "edcba",     visible: true  },
+      { input: "a",           expected: "a",         visible: false },
+      { input: "racecar",     expected: "racecar",   visible: false },
+      { input: "Programming", expected: "gnimmargorP", visible: false },
+    ],
+  },
+  {
+    id: 3,
+    title: "Prime Check",
+    difficulty: "Medium",
+    description: `Given an integer N, print YES if it is a prime number, otherwise print NO.`,
+    inputFormat: `A single integer N`,
+    outputFormat: `YES or NO`,
+    constraints: `1 ≤ N ≤ 10^6`,
+    examples: [{ input: "7", output: "YES" }, { input: "10", output: "NO" }],
+    testCases: [
+      { input: "7",    expected: "YES", visible: true  },
+      { input: "10",   expected: "NO",  visible: true  },
+      { input: "2",    expected: "YES", visible: false },
+      { input: "1",    expected: "NO",  visible: false },
+      { input: "97",   expected: "YES", visible: false },
+    ],
+  },
+  {
+    id: 4,
+    title: "Nth Fibonacci",
+    difficulty: "Medium",
+    description: `Print the N-th Fibonacci number (0-indexed). The sequence starts: 0, 1, 1, 2, 3, 5, 8, 13, ...`,
+    inputFormat: `A single integer N`,
+    outputFormat: `The N-th Fibonacci number`,
+    constraints: `0 ≤ N ≤ 30`,
+    examples: [{ input: "5", output: "5" }, { input: "10", output: "55" }],
+    testCases: [
+      { input: "5",  expected: "5",   visible: true  },
+      { input: "10", expected: "55",  visible: true  },
+      { input: "0",  expected: "0",   visible: false },
+      { input: "1",  expected: "1",   visible: false },
+      { input: "15", expected: "610", visible: false },
+    ],
+  },
+  {
+    id: 5,
+    title: "Count Vowels",
+    difficulty: "Medium",
+    description: `Given a string S, count the number of vowels (a, e, i, o, u — both upper and lower case).`,
+    inputFormat: `A single string`,
+    outputFormat: `An integer: count of vowels`,
+    constraints: `1 ≤ |S| ≤ 10^5`,
+    examples: [{ input: "hello", output: "2" }, { input: "AEIOU", output: "5" }],
+    testCases: [
+      { input: "hello",       expected: "2", visible: true  },
+      { input: "AEIOU",       expected: "5", visible: true  },
+      { input: "rhythm",      expected: "0", visible: false },
+      { input: "programming", expected: "3", visible: false },
+      { input: "OpenAI",      expected: "4", visible: false },
+    ],
+  },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Starter Code Templates
+// ─────────────────────────────────────────────────────────────────────────────
+const TEMPLATES = {
+  c: {
+    1: `#include <stdio.h>\nint main() {\n    long long a, b;\n    scanf("%lld %lld", &a, &b);\n    printf("%lld\\n", a + b);\n    return 0;\n}`,
+    2: `#include <stdio.h>\n#include <string.h>\nint main() {\n    char s[100001];\n    scanf("%s", s);\n    int n = strlen(s);\n    for (int i = n-1; i >= 0; i--) putchar(s[i]);\n    putchar('\\n');\n    return 0;\n}`,
+    3: `#include <stdio.h>\nint isPrime(int n) {\n    if (n < 2) return 0;\n    for (int i = 2; (long long)i*i <= n; i++)\n        if (n % i == 0) return 0;\n    return 1;\n}\nint main() {\n    int n; scanf("%d", &n);\n    printf("%s\\n", isPrime(n) ? "YES" : "NO");\n    return 0;\n}`,
+    4: `#include <stdio.h>\nlong long fib(int n) {\n    if (n <= 1) return n;\n    long long a = 0, b = 1;\n    for (int i = 2; i <= n; i++) { long long c = a+b; a=b; b=c; }\n    return b;\n}\nint main() {\n    int n; scanf("%d", &n);\n    printf("%lld\\n", fib(n));\n    return 0;\n}`,
+    5: `#include <stdio.h>\n#include <string.h>\nint main() {\n    char s[100001]; scanf("%s", s);\n    int cnt = 0;\n    for (int i = 0; s[i]; i++) {\n        char c = s[i] | 32;\n        if (c=='a'||c=='e'||c=='i'||c=='o'||c=='u') cnt++;\n    }\n    printf("%d\\n", cnt);\n    return 0;\n}`,
+  },
+  cpp: {
+    1: `#include <iostream>\nusing namespace std;\nint main() {\n    long long a, b;\n    cin >> a >> b;\n    cout << a + b << endl;\n    return 0;\n}`,
+    2: `#include <iostream>\n#include <string>\n#include <algorithm>\nusing namespace std;\nint main() {\n    string s; cin >> s;\n    reverse(s.begin(), s.end());\n    cout << s << endl;\n    return 0;\n}`,
+    3: `#include <iostream>\nusing namespace std;\nbool isPrime(int n) {\n    if (n < 2) return false;\n    for (int i = 2; (long long)i*i <= n; i++)\n        if (n % i == 0) return false;\n    return true;\n}\nint main() {\n    int n; cin >> n;\n    cout << (isPrime(n) ? "YES" : "NO") << endl;\n    return 0;\n}`,
+    4: `#include <iostream>\nusing namespace std;\nint main() {\n    int n; cin >> n;\n    long long a = 0, b = 1;\n    if (n == 0) { cout << 0; return 0; }\n    for (int i = 2; i <= n; i++) { long long c = a+b; a=b; b=c; }\n    cout << b << endl;\n    return 0;\n}`,
+    5: `#include <iostream>\n#include <string>\nusing namespace std;\nint main() {\n    string s; cin >> s;\n    int cnt = 0;\n    for (char c : s) {\n        c = tolower(c);\n        if (c=='a'||c=='e'||c=='i'||c=='o'||c=='u') cnt++;\n    }\n    cout << cnt << endl;\n    return 0;\n}`,
+  },
+  python: {
+    1: `a = int(input())\nb = int(input())\nprint(a + b)`,
+    2: `s = input()\nprint(s[::-1])`,
+    3: `n = int(input())\ndef is_prime(n):\n    if n < 2: return False\n    for i in range(2, int(n**0.5)+1):\n        if n % i == 0: return False\n    return True\nprint("YES" if is_prime(n) else "NO")`,
+    4: `n = int(input())\na, b = 0, 1\nif n == 0:\n    print(0)\nelse:\n    for _ in range(n-1):\n        a, b = b, a+b\n    print(b)`,
+    5: `s = input()\nprint(sum(1 for c in s if c.lower() in 'aeiou'))`,
+  },
+  java: {
+    1: `import java.util.Scanner;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        long a = sc.nextLong(), b = sc.nextLong();\n        System.out.println(a + b);\n    }\n}`,
+    2: `import java.util.Scanner;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.next();\n        System.out.println(new StringBuilder(s).reverse().toString());\n    }\n}`,
+    3: `import java.util.Scanner;\npublic class Main {\n    static boolean isPrime(int n) {\n        if (n < 2) return false;\n        for (int i = 2; (long)i*i <= n; i++)\n            if (n % i == 0) return false;\n        return true;\n    }\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = sc.nextInt();\n        System.out.println(isPrime(n) ? "YES" : "NO");\n    }\n}`,
+    4: `import java.util.Scanner;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = sc.nextInt();\n        long a = 0, b = 1;\n        if (n == 0) { System.out.println(0); return; }\n        for (int i = 2; i <= n; i++) { long c = a+b; a=b; b=c; }\n        System.out.println(b);\n    }\n}`,
+    5: `import java.util.Scanner;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.next();\n        int cnt = 0;\n        for (char c : s.toLowerCase().toCharArray())\n            if ("aeiou".indexOf(c) >= 0) cnt++;\n        System.out.println(cnt);\n    }\n}`,
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  CONFIG — paste your Google Apps Script Web App URL here
+// ─────────────────────────────────────────────────────────────────────────────
+const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbzgcXdemVwdnQ2Cwxmi9PxBRk0MgYFhaEbCB2XdvYhPohJhJ4kceh9x_SjHSvgXdNP9/exec';
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  State
+// ─────────────────────────────────────────────────────────────────────────────
+let state = {
+  name: '', roll: '',
+  currentQ: 0,
+  lang: 'python',
+  codes: {},        // {qIdx_lang: code}
+  results: [],      // per question: {status, tcResults, lang, attempts, time}
+  tcResults: [],    // current question tc statuses
+  timerLeft: 75 * 60,
+  timerInterval: null,
+  startTime: null,
+  tabSwitches: 0,
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Login
+// ─────────────────────────────────────────────────────────────────────────────
+function startContest() {
+  const name = document.getElementById('nameInput').value.trim();
+  const roll = document.getElementById('rollInput').value.trim();
+  if (!name || !roll) { showToast('Please fill in name and roll number.', 'error'); return; }
+  state.name = name;
+  state.roll = roll;
+  state.startTime = new Date();
+
+  // init results
+  state.results = QUESTIONS.map(() => ({
+    status: 'not-attempted', // not-attempted | attempted | accepted
+    tcResults: [],
+    lang: 'python',
+    attempts: 0,
+    solvedAt: null,
+    timeTaken: 0,
+  }));
+
+  switchScreen('contestScreen');
+  document.getElementById('topUser').textContent = `${name} · ${roll}`;
+  buildQNav();
+  loadQuestion(0);
+  startTimer();
+  setupTabSwitch();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Screen management
+// ─────────────────────────────────────────────────────────────────────────────
+function switchScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Q Nav
+// ─────────────────────────────────────────────────────────────────────────────
+function buildQNav() {
+  const nav = document.getElementById('qNav');
+  nav.innerHTML = '';
+  QUESTIONS.forEach((q, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'q-dot' + (i === state.currentQ ? ' current' : '') + (state.results[i]?.status === 'accepted' ? ' solved' : '');
+    dot.textContent = i + 1;
+    dot.title = q.title;
+    dot.onclick = () => switchToQ(i);
+    nav.appendChild(dot);
+  });
+}
+
+function updateQNav() {
+  const dots = document.querySelectorAll('.q-dot');
+  dots.forEach((dot, i) => {
+    dot.className = 'q-dot';
+    if (i === state.currentQ) dot.classList.add('current');
+    if (state.results[i]?.status === 'accepted') dot.classList.add('solved');
+  });
+}
+
+function switchToQ(i) {
+  saveCurrentCode();
+  state.currentQ = i;
+  state.tcResults = [];
+  loadQuestion(i);
+  updateQNav();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Problem Rendering
+// ─────────────────────────────────────────────────────────────────────────────
+function loadQuestion(idx) {
+  const q = QUESTIONS[idx];
+  const lang = document.getElementById('langSelect').value;
+  state.lang = lang;
+
+  // Render problem
+  const panel = document.getElementById('problemPanel');
+  const visibleTC = q.testCases.filter(t => t.visible);
+
+  panel.innerHTML = `
+    <div class="problem-tag">Q${q.id} / ${q.difficulty}</div>
+    <div class="problem-title">${q.title}</div>
+    <div class="problem-desc">${q.description}</div>
+
+    <div class="io-label">Input Format</div>
+    <div class="io-box">${q.inputFormat}</div>
+
+    <div class="io-label">Output Format</div>
+    <div class="io-box">${q.outputFormat}</div>
+
+    <div class="io-label">Constraints</div>
+    <div class="io-box">${q.constraints}</div>
+
+    <div class="io-label">Sample Test Cases</div>
+    <div class="tc-grid" id="tcGrid">
+      ${q.testCases.map((tc, i) => `
+        <div class="tc-row" id="tc-${i}">
+          <div>
+            <div style="font-size:.6rem;color:var(--dim);margin-bottom:.2rem">${tc.visible ? `TC #${i+1} (visible)` : `TC #${i+1} (hidden)`}</div>
+            <div>${tc.visible ? escHtml(tc.input.replace(/\n/g,' | ')) : '— hidden —'}</div>
+          </div>
+          <div>
+            <div style="font-size:.6rem;color:var(--dim);margin-bottom:.2rem">Expected</div>
+            <div>${tc.visible ? escHtml(tc.expected) : '???'}</div>
+          </div>
+          <div class="tc-badge pending" id="badge-${i}">—</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  // Restore saved code or load template
+  const key = `${idx}_${lang}`;
+  const savedCode = state.codes[key] || TEMPLATES[lang]?.[idx + 1] || '';
+  document.getElementById('codeEditor').value = savedCode;
+  document.getElementById('consoleOut').textContent = '// Output will appear here after running...';
+
+  // Restore tc results if any
+  if (state.results[idx].tcResults.length > 0) {
+    state.tcResults = [...state.results[idx].tcResults];
+    renderTcBadges();
+  }
+
+  updateSubmitBtn();
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Language Switch
+// ─────────────────────────────────────────────────────────────────────────────
+function switchLang() {
+  saveCurrentCode();
+  const lang = document.getElementById('langSelect').value;
+  state.lang = lang;
+  const key = `${state.currentQ}_${lang}`;
+  const savedCode = state.codes[key] || TEMPLATES[lang]?.[state.currentQ + 1] || '';
+  document.getElementById('codeEditor').value = savedCode;
+  document.getElementById('consoleOut').textContent = '// Switched language. Run to test.';
+}
+
+function saveCurrentCode() {
+  const key = `${state.currentQ}_${state.lang}`;
+  state.codes[key] = document.getElementById('codeEditor').value;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Piston API — Code Execution
+// ─────────────────────────────────────────────────────────────────────────────
+// Judge0 CE — language IDs
+// https://ce.judge0.com  (free, CORS-enabled, no API key needed)
+const LANG_MAP = {
+  c:      { id: 50,  name: 'C (GCC 9.2.0)'        },
+  cpp:    { id: 54,  name: 'C++ (GCC 9.2.0)'       },
+  python: { id: 71,  name: 'Python 3.8'            },
+  java:   { id: 62,  name: 'Java (OpenJDK 13)'     },
+};
+
+// Judge0 status codes
+const J0_STATUS = {
+  1: 'In Queue', 2: 'Processing', 3: 'Accepted',
+  4: 'Wrong Answer', 5: 'Time Limit Exceeded',
+  6: 'Compile Error', 7: 'Runtime Error (SIGSEGV)',
+  8: 'Runtime Error (SIGXFSZ)', 9: 'Runtime Error (SIGFPE)',
+  10: 'Runtime Error (SIGABRT)', 11: 'Runtime Error (NZEC)',
+  12: 'Runtime Error (other)', 13: 'Internal Error',
+};
+
+async function executeCode(code, input, lang) {
+  const lm = LANG_MAP[lang];
+
+  // file:// protocol check
+  if (location.protocol === 'file:') return '__FILE_PROTO__';
+
+  try {
+    // Submit to Judge0 CE with wait=true (synchronous response)
+    const res = await fetch(
+      'https://judge0-ce.p.sulu.sh/submissions?base64_encoded=false&wait=true',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          source_code: code,
+          language_id: lm.id,
+          stdin: input,
+          cpu_time_limit: 5,
+          wall_time_limit: 10,
+        }),
+      }
+    );
+
+    if (!res.ok) {
+      // Try fallback endpoint
+      return await executeCodeFallback(code, input, lang);
+    }
+
+    const data = await res.json();
+    return parseJudge0(data);
+
+  } catch (e) {
+    // Network failure — try fallback
+    try {
+      return await executeCodeFallback(code, input, lang);
+    } catch (e2) {
+      return '__FETCH_ERROR__';
+    }
+  }
+}
+
+// Fallback: ce.judge0.com direct
+async function executeCodeFallback(code, input, lang) {
+  const lm = LANG_MAP[lang];
+  const res = await fetch(
+    'https://ce.judge0.com/submissions?base64_encoded=false&wait=true',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Auth-Token': 'guest',
+      },
+      body: JSON.stringify({
+        source_code: code,
+        language_id: lm.id,
+        stdin: input,
+        cpu_time_limit: 5,
+        wall_time_limit: 10,
+      }),
+    }
+  );
+  if (!res.ok) return '__FETCH_ERROR__';
+  const data = await res.json();
+  return parseJudge0(data);
+}
+
+function parseJudge0(data) {
+  const statusId = data.status?.id ?? 0;
+
+  // Compile error
+  if (statusId === 6) {
+    const msg = data.compile_output || 'Compile error (no details)';
+    return 'Compile Error:\n' + msg.trim();
+  }
+
+  // Runtime errors
+  if (statusId >= 7 && statusId <= 12) {
+    const msg = data.stderr || data.message || J0_STATUS[statusId] || 'Runtime Error';
+    return 'Runtime Error:\n' + msg.trim();
+  }
+
+  // TLE
+  if (statusId === 5) return 'Runtime Error:\nTime Limit Exceeded';
+
+  // Internal error
+  if (statusId === 13) return '__FETCH_ERROR__';
+
+  // Success or wrong answer — return stdout
+  const out = (data.stdout || '').trim();
+  return out;
+}
+
+async function runCode() {
+  // Block if opened via file:// protocol
+  if (location.protocol === 'file:') {
+    document.getElementById('consoleOut').textContent =
+      '⚠ CORS ERROR: File opened directly from disk (file://)\n\n' +
+      'FIX — host on any web server:\n' +
+      '  Option 1: drag & drop this file onto https://app.netlify.com/drop\n' +
+      '  Option 2: python -m http.server 8080  →  http://localhost:8080/coding_contest.html';
+    showToast('Cannot run: open from a web server first.', 'error');
+    return;
+  }
+
+  saveCurrentCode();
+  const code = document.getElementById('codeEditor').value.trim();
+  if (!code) { showToast('Please write some code first.', 'error'); return; }
+
+  const lang = document.getElementById('langSelect').value;
+  const q = QUESTIONS[state.currentQ];
+  const btn = document.getElementById('btnRun');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Running...';
+
+  const consoleEl = document.getElementById('consoleOut');
+  consoleEl.textContent = 'Running test cases...\n';
+  state.tcResults = [];
+
+  q.testCases.forEach((_, i) => {
+    const badge = document.getElementById(`badge-${i}`);
+    if (badge) { badge.className = 'tc-badge pending'; badge.textContent = '...'; }
+  });
+
+  let passed = 0;
+  let aborted = false;
+
+  for (let i = 0; i < q.testCases.length; i++) {
+    const tc = q.testCases[i];
+    const output = await executeCode(code, tc.input, lang);
+
+    // file:// protocol (should be caught above, safety net)
+    if (output === '__FILE_PROTO__') {
+      document.getElementById('consoleOut').textContent =
+        '⚠ Open this file from a web server, not file://';
+      showToast('Deploy to Netlify first.', 'error');
+      aborted = true;
+      break;
+    }
+
+    // Network / CORS error
+    if (output === '__FETCH_ERROR__') {
+      consoleEl.textContent =
+        '⚠ Judge0 API unreachable (tried 2 endpoints)\n\n' +
+        'Possible causes:\n' +
+        '  1. No internet connection\n' +
+        '  2. Judge0 CE rate-limited — wait 30s and retry\n' +
+        '  3. Ad-blocker or browser extension blocking the API\n\n' +
+        'Tips:\n' +
+        '  • Disable ad-blocker for this page and retry\n' +
+        '  • Try incognito mode\n' +
+        '  • Check internet connection';
+      q.testCases.forEach((_, j) => {
+        const b = document.getElementById(`badge-${j}`);
+        if (b) { b.className = 'tc-badge fail'; b.textContent = 'ERR'; }
+      });
+      showToast('API unreachable — see console.', 'error');
+      aborted = true;
+      break;
+    }
+
+    // Compile error — mark all failed and stop
+    if (output.startsWith('Compile Error:') || output.startsWith('Runtime Error:')) {
+      consoleEl.textContent = output;
+      q.testCases.forEach((_, j) => {
+        state.tcResults[j] = 'fail';
+        const b = document.getElementById(`badge-${j}`);
+        if (b) { b.className = 'tc-badge fail'; b.textContent = output.startsWith('Compile') ? 'CE' : 'RE'; }
+      });
+      showToast(output.startsWith('Compile') ? 'Compile Error — check your code.' : 'Runtime Error.', 'error');
+      aborted = true;
+      break;
+    }
+
+    const ok = output.trim() === tc.expected.trim();
+    state.tcResults[i] = ok ? 'pass' : 'fail';
+    if (ok) passed++;
+
+    const badge = document.getElementById(`badge-${i}`);
+    if (badge) { badge.className = `tc-badge ${ok ? 'pass' : 'fail'}`; badge.textContent = ok ? 'PASS' : 'FAIL'; }
+
+    if (tc.visible) {
+      consoleEl.textContent += `TC #${i+1}: ${ok ? '✓ PASSED' : '✗ FAILED'}\n`;
+      if (!ok) {
+        consoleEl.textContent += `  Input:    ${tc.input.replace(/\n/g,' | ')}\n`;
+        consoleEl.textContent += `  Expected: ${tc.expected}\n`;
+        consoleEl.textContent += `  Got:      ${output}\n`;
+      }
+    } else {
+      consoleEl.textContent += `TC #${i+1} (hidden): ${ok ? '✓ PASSED' : '✗ FAILED'}\n`;
+    }
+  }
+
+  if (!aborted) {
+    consoleEl.textContent += `\n${passed}/${q.testCases.length} test cases passed.`;
+    if (passed === q.testCases.length) {
+      consoleEl.textContent += '\n✓ All test cases passed! Click "Submit & Next" to continue.';
+      showToast('All test cases passed! 🎉', 'success');
+    } else {
+      showToast(`${passed}/${q.testCases.length} passed. Fix your code!`, 'error');
+    }
+    const r = state.results[state.currentQ];
+    r.attempts++;
+    r.tcResults = [...state.tcResults];
+    r.lang = lang;
+    if (r.status === 'not-attempted') r.status = 'attempted';
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '▶ Run Tests';
+  updateSubmitBtn();
+}
+
+function updateSubmitBtn() {
+  const allPassed = state.tcResults.length > 0 && state.tcResults.every(r => r === 'pass');
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = !allPassed;
+  const isLast = state.currentQ === QUESTIONS.length - 1;
+  btn.textContent = isLast ? '✓ Finish Contest' : '✓ Submit & Next';
+}
+
+function submitQuestion() {
+  const allPassed = state.tcResults.every(r => r === 'pass');
+  if (!allPassed) { showToast('Not all test cases pass.', 'error'); return; }
+
+  saveCurrentCode();
+  const r = state.results[state.currentQ];
+  r.status = 'accepted';
+  r.solvedAt = new Date();
+  r.timeTaken = state.startTime ? Math.floor((new Date() - state.startTime) / 1000) : 0;
+  r.lang = document.getElementById('langSelect').value;
+
+  showToast(`Q${state.currentQ + 1} Accepted! 🎉`, 'success');
+
+  if (state.currentQ < QUESTIONS.length - 1) {
+    const next = state.currentQ + 1;
+    state.currentQ = next;
+    state.tcResults = [];
+    updateQNav();
+    loadQuestion(next);
+  } else {
+    // All done
+    clearInterval(state.timerInterval);
+    finishContest();
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Timer
+// ─────────────────────────────────────────────────────────────────────────────
+function startTimer() {
+  state.timerInterval = setInterval(() => {
+    state.timerLeft--;
+    updateTimerDisplay();
+    if (state.timerLeft <= 0) {
+      clearInterval(state.timerInterval);
+      showToast('Time up! Generating report...', 'error');
+      setTimeout(finishContest, 1500);
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const el = document.getElementById('timerDisplay');
+  const m = Math.floor(state.timerLeft / 60);
+  const s = state.timerLeft % 60;
+  el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  el.className = 'timer-display';
+  if (state.timerLeft <= 300) el.classList.add('danger');
+  else if (state.timerLeft <= 900) el.classList.add('warning');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Tab Switch Detection
+// ─────────────────────────────────────────────────────────────────────────────
+function setupTabSwitch() {
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      state.tabSwitches++;
+      if (state.tabSwitches >= 3) {
+        showToast(`⚠ Tab switched ${state.tabSwitches}x — auto-submitting!`, 'error');
+        setTimeout(() => { clearInterval(state.timerInterval); finishContest(); }, 1500);
+      } else {
+        showToast(`⚠ Tab switch detected (${state.tabSwitches}/3)`, 'error');
+      }
+    }
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Report
+// ─────────────────────────────────────────────────────────────────────────────
+function finishContest() {
+  clearInterval(state.timerInterval);
+  saveCurrentCode();
+  generateReport();
+  submitToSheet();
+  switchScreen('reportScreen');
+}
+
+async function submitToSheet() {
+  if (!SHEET_WEBHOOK_URL || SHEET_WEBHOOK_URL === 'PASTE_YOUR_APPS_SCRIPT_URL_HERE') return;
+
+  const elapsed = state.startTime ? Math.floor((new Date() - state.startTime) / 1000) : 0;
+  const solved   = state.results.filter(r => r.status === 'accepted').length;
+
+  const payload = {
+    name:        state.name,
+    roll:        state.roll,
+    submitTime:  new Date().toLocaleString(),
+    timeUsed:    `${Math.floor(elapsed/60)}m ${elapsed%60}s`,
+    totalSolved: solved,
+    tabSwitches: state.tabSwitches,
+    questions: QUESTIONS.map((q, i) => {
+      const r = state.results[i];
+      const tcPass = r.tcResults.filter(x => x === 'pass').length;
+      return {
+        title:    q.title,
+        status:   r.status,
+        lang:     r.lang || '-',
+        attempts: r.attempts,
+        tcPassed: tcPass,
+        tcTotal:  q.testCases.length,
+        timeTaken: r.status === 'accepted'
+          ? `${Math.floor(r.timeTaken/60)}m ${r.timeTaken%60}s`
+          : '-',
+      };
+    }),
+  };
+
+  try {
+    // Google Apps Script requires no-cors for POST from external origin
+    await fetch(SHEET_WEBHOOK_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    showToast('✓ Report saved to Google Sheet!', 'success');
+  } catch (e) {
+    console.error('Sheet submit failed:', e);
+    showToast('Sheet sync failed — download report manually.', 'error');
+  }
+}
+
+function generateReport() {
+  const solved = state.results.filter(r => r.status === 'accepted').length;
+  const elapsed = state.startTime ? Math.floor((new Date() - state.startTime) / 1000) : 0;
+  const elapsedStr = `${Math.floor(elapsed/60)}m ${elapsed%60}s`;
+
+  document.getElementById('reportScore').textContent = `${solved}/5`;
+  document.getElementById('reportMeta').textContent =
+    `${state.name} · ${state.roll} · ${new Date().toLocaleString()} · Time used: ${elapsedStr} · Tab switches: ${state.tabSwitches}`;
+
+  const html = QUESTIONS.map((q, i) => {
+    const r = state.results[i];
+    const tcPass = r.tcResults.filter(x => x === 'pass').length;
+    const tcTotal = q.testCases.length;
+    const label = r.status === 'accepted' ? 'Accepted' : r.status === 'attempted' ? 'Attempted' : 'Not Attempted';
+    const chipClass = r.status;
+
+    let detail = '';
+    if (r.status !== 'not-attempted') {
+      const pct = Math.round((tcPass / tcTotal) * 100);
+      detail = `
+        <div class="report-q-detail">
+          Language: <span class="hl">${r.lang.toUpperCase()}</span> ·
+          Attempts: <span class="hl">${r.attempts}</span> ·
+          Test Cases: <span class="hl">${tcPass}/${tcTotal} passed</span>
+          ${r.status === 'accepted' ? ` · Solved in <span class="hl">${Math.floor(r.timeTaken/60)}m ${r.timeTaken%60}s</span>` : ''}
+        </div>
+        <div class="progress-bar-wrap" style="margin-top:.6rem">
+          <div class="progress-bar-fill" style="width:${pct}%"></div>
+        </div>
+      `;
+    } else {
+      detail = `<div class="report-q-detail" style="color:var(--dim)">Not attempted during this session.</div>`;
+    }
+
+    return `
+      <div class="report-q">
+        <div class="report-q-header">
+          <div class="report-q-title">Q${i+1}. ${q.title}</div>
+          <div class="status-chip ${r.status}">${label}</div>
+        </div>
+        ${detail}
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('reportContent').innerHTML = html;
+}
+
+function downloadReport() {
+  const solved = state.results.filter(r => r.status === 'accepted').length;
+  const elapsed = state.startTime ? Math.floor((new Date() - state.startTime) / 1000) : 0;
+  let txt = `CODEARENA — CONTEST REPORT\n${'='.repeat(50)}\n`;
+  txt += `Name       : ${state.name}\n`;
+  txt += `Roll No    : ${state.roll}\n`;
+  txt += `Date       : ${new Date().toLocaleString()}\n`;
+  txt += `Time Used  : ${Math.floor(elapsed/60)}m ${elapsed%60}s\n`;
+  txt += `Score      : ${solved}/5 questions solved\n`;
+  txt += `Tab Switch : ${state.tabSwitches}\n\n`;
+
+  QUESTIONS.forEach((q, i) => {
+    const r = state.results[i];
+    const tcPass = r.tcResults.filter(x => x === 'pass').length;
+    txt += `Q${i+1}. ${q.title}\n`;
+    txt += `    Status   : ${r.status === 'accepted' ? 'ACCEPTED' : r.status === 'attempted' ? 'ATTEMPTED' : 'NOT ATTEMPTED'}\n`;
+    if (r.status !== 'not-attempted') {
+      txt += `    Language : ${r.lang.toUpperCase()}\n`;
+      txt += `    Attempts : ${r.attempts}\n`;
+      txt += `    TC Passed: ${tcPass}/${q.testCases.length}\n`;
+      if (r.status === 'accepted') txt += `    Time Taken: ${Math.floor(r.timeTaken/60)}m ${r.timeTaken%60}s\n`;
+    }
+    txt += '\n';
+  });
+
+  txt += '='.repeat(50) + '\nGenerated by CodeArena\n';
+
+  const blob = new Blob([txt], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `CodeArena_Report_${state.roll}_${Date.now()}.txt`;
+  a.click();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Helpers
+// ─────────────────────────────────────────────────────────────────────────────
+function renderTcBadges() {
+  state.tcResults.forEach((r, i) => {
+    const badge = document.getElementById(`badge-${i}`);
+    if (badge) { badge.className = `tc-badge ${r}`; badge.textContent = r === 'pass' ? 'PASS' : 'FAIL'; }
+  });
+}
+
+function showToast(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast show ${type}`;
+  setTimeout(() => t.className = 'toast', 3000);
+}
+
+// Tab key in editor
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('codeEditor').addEventListener('keydown', e => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const el = e.target;
+      const s = el.selectionStart, en = el.selectionEnd;
+      el.value = el.value.substring(0, s) + '    ' + el.value.substring(en);
+      el.selectionStart = el.selectionEnd = s + 4;
+    }
+  });
+});
+</script>
+</body>
+</html>
