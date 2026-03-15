@@ -1,1130 +1,531 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CodeArena — Programming Contest</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@700;800&display=swap"
-    rel="stylesheet">
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0
-    }
-
-    :root {
-      --bg: #0b0f14;
-      --panel: #111820;
-      --card: #161d27;
-      --border: #1e2d3d;
-      --accent: #00e5ff;
-      --green: #00ff88;
-      --red: #ff4d6d;
-      --yellow: #ffd166;
-      --purple: #7c3aed;
-      --text: #c9d6e3;
-      --dim: #4a6070;
-    }
-
-    body {
-      font-family: 'JetBrains Mono', monospace;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh
-    }
-
-    /* ── SCREENS ── */
-    .screen {
-      display: none;
-      min-height: 100vh
-    }
-
-    .screen.active {
-      display: block
-    }
-
-    #contestScreen.active {
-      display: flex;
-      flex-direction: column
-    }
-
-    /* ── LOGIN ── */
-    #loginScreen {
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem
-    }
-
-    #loginScreen.active {
-      display: flex
-    }
-
-    .login-wrap {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 2.5rem;
-      width: 100%;
-      max-width: 440px;
-      box-shadow: 0 0 60px rgba(0, 229, 255, 0.04);
-    }
-
-    .logo {
-      font-family: 'Syne', sans-serif;
-      font-size: 2rem;
-      font-weight: 800;
-      text-align: center;
-      background: linear-gradient(135deg, var(--accent), var(--purple));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: .3rem;
-    }
-
-    .logo-sub {
-      text-align: center;
-      font-size: .7rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--dim);
-      margin-bottom: 2rem
-    }
-
-    .field {
-      margin-bottom: 1.1rem
-    }
-
-    .field label {
-      display: block;
-      font-size: .65rem;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--dim);
-      margin-bottom: .45rem
-    }
-
-    .field input {
-      width: 100%;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: .7rem 1rem;
-      color: var(--text);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: .88rem;
-      outline: none;
-    }
-
-    .field input:focus {
-      border-color: var(--accent)
-    }
-
-    .btn-start {
-      width: 100%;
-      padding: .8rem;
-      background: linear-gradient(135deg, var(--accent), #0099bb);
-      border: none;
-      border-radius: 8px;
-      color: #000;
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: .95rem;
-      cursor: pointer;
-      margin-top: .5rem;
-    }
-
-    .rules {
-      margin-top: 1.5rem;
-      padding: .9rem 1rem;
-      background: rgba(0, 229, 255, 0.03);
-      border: 1px solid rgba(0, 229, 255, 0.08);
-      border-radius: 8px;
-      font-size: .72rem;
-      color: var(--dim);
-      line-height: 1.9
-    }
-
-    .rules b {
-      color: var(--accent)
-    }
-
-    /* ── TOPBAR ── */
-    .topbar {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: .7rem 1.2rem;
-      background: var(--panel);
-      border-bottom: 1px solid var(--border);
-      flex-wrap: wrap;
-    }
-
-    .topbar-logo {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 1.1rem;
-      background: linear-gradient(135deg, var(--accent), var(--purple));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent
-    }
-
-    .user-info {
-      font-size: .75rem;
-      color: var(--dim);
-      background: var(--card);
-      border: 1px solid var(--border);
-      padding: .3rem .8rem;
-      border-radius: 20px
-    }
-
-    .user-info span {
-      color: var(--accent)
-    }
-
-    .timer {
-      font-size: 1rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      color: var(--green);
-      background: var(--card);
-      border: 1px solid var(--border);
-      padding: .35rem .9rem;
-      border-radius: 8px;
-    }
-
-    .timer.warn {
-      color: var(--yellow);
-      border-color: var(--yellow)
-    }
-
-    .timer.danger {
-      color: var(--red);
-      border-color: var(--red);
-      animation: blink 1s infinite
-    }
-
-    @keyframes blink {
-
-      0%,
-      100% {
-        opacity: 1
-      }
-
-      50% {
-        opacity: .4
-      }
-    }
-
-    .btn-finish {
-      margin-left: auto;
-      background: rgba(124, 58, 237, .1);
-      border: 1px solid var(--purple);
-      color: var(--purple);
-      border-radius: 6px;
-      padding: .35rem 1rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: .78rem;
-      cursor: pointer;
-    }
-
-    .btn-finish:hover {
-      background: rgba(124, 58, 237, .2)
-    }
-
-    /* ── Q NAV ── */
-    .qnav {
-      display: flex;
-      gap: .5rem;
-      padding: .6rem 1.2rem;
-      background: var(--panel);
-      border-bottom: 1px solid var(--border);
-      flex-wrap: wrap
-    }
-
-    .qdot {
-      width: 34px;
-      height: 34px;
-      border-radius: 7px;
-      border: 1px solid var(--border);
-      background: var(--card);
-      color: var(--dim);
-      font-size: .8rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      transition: all .2s;
-    }
-
-    .qdot.cur {
-      border-color: var(--accent);
-      color: var(--accent);
-      background: rgba(0, 229, 255, .07)
-    }
-
-    .qdot.done {
-      border-color: var(--green);
-      color: var(--green);
-      background: rgba(0, 255, 136, .07)
-    }
-
-    .qdot.done::after {
-      content: '✓';
-      position: absolute;
-      top: -5px;
-      right: -5px;
-      font-size: .55rem;
-      background: var(--green);
-      color: #000;
-      border-radius: 50%;
-      width: 13px;
-      height: 13px;
-      display: flex;
-      align-items: center;
-      justify-content: center
-    }
-
-    /* ── CONTEST BODY ── */
-    .contest-body {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      flex: 1;
-      overflow: hidden;
-      height: calc(100vh - 118px)
-    }
-
-    .prob-panel {
-      padding: 1.2rem 1.4rem;
-      overflow-y: auto;
-      border-right: 1px solid var(--border);
-      background: var(--panel)
-    }
-
-    .editor-panel {
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      background: var(--bg)
-    }
-
-    /* Problem */
-    .prob-tag {
-      display: inline-block;
-      font-size: .62rem;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      padding: .2rem .6rem;
-      border-radius: 20px;
-      border: 1px solid var(--purple);
-      color: var(--purple);
-      margin-bottom: .8rem
-    }
-
-    .prob-title {
-      font-family: 'Syne', sans-serif;
-      font-size: 1.3rem;
-      font-weight: 800;
-      color: #fff;
-      margin-bottom: .6rem
-    }
-
-    .prob-desc {
-      font-size: .8rem;
-      line-height: 1.85;
-      color: var(--text);
-      margin-bottom: 1rem
-    }
-
-    .io-label {
-      font-size: .6rem;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--dim);
-      margin: .9rem 0 .35rem
-    }
-
-    .io-box {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      padding: .65rem .9rem;
-      font-size: .78rem;
-      line-height: 1.7;
-      color: var(--accent);
-      white-space: pre
-    }
-
-    .tc-list {
-      display: flex;
-      flex-direction: column;
-      gap: .4rem;
-      margin-top: .4rem
-    }
-
-    .tc-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr 56px;
-      gap: .5rem;
-      align-items: center;
-      padding: .5rem .75rem;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      font-size: .74rem
-    }
-
-    .tc-label {
-      font-size: .58rem;
-      color: var(--dim);
-      margin-bottom: .15rem
-    }
-
-    .badge {
-      font-size: .6rem;
-      padding: .15rem .45rem;
-      border-radius: 10px;
-      text-align: center;
-      font-weight: 700;
-      border: 1px solid var(--border);
-      color: var(--dim)
-    }
-
-    .badge.pass {
-      background: rgba(0, 255, 136, .12);
-      color: var(--green);
-      border-color: var(--green)
-    }
-
-    .badge.fail {
-      background: rgba(255, 77, 109, .12);
-      color: var(--red);
-      border-color: var(--red)
-    }
-
-    .badge.ce {
-      background: rgba(255, 209, 102, .12);
-      color: var(--yellow);
-      border-color: var(--yellow)
-    }
-
-    /* Editor toolbar */
-    .editor-toolbar {
-      display: flex;
-      align-items: center;
-      gap: .6rem;
-      padding: .55rem .9rem;
-      background: var(--panel);
-      border-bottom: 1px solid var(--border);
-      flex-wrap: wrap;
-    }
-
-    .lang-sel {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: .78rem;
-      padding: .3rem .7rem;
-      outline: none;
-      cursor: pointer;
-    }
-
-    .lang-sel:focus {
-      border-color: var(--accent)
-    }
-
-    .btn-run {
-      display: flex;
-      align-items: center;
-      gap: .35rem;
-      background: rgba(0, 229, 255, .08);
-      border: 1px solid var(--accent);
-      color: var(--accent);
-      border-radius: 6px;
-      padding: .3rem .9rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: .78rem;
-      cursor: pointer;
-      transition: background .2s;
-    }
-
-    .btn-run:hover {
-      background: rgba(0, 229, 255, .18)
-    }
-
-    .btn-run:disabled {
-      opacity: .35;
-      cursor: not-allowed
-    }
-
-    .btn-sub {
-      display: flex;
-      align-items: center;
-      gap: .35rem;
-      margin-left: auto;
-      background: rgba(0, 255, 136, .08);
-      border: 1px solid var(--green);
-      color: var(--green);
-      border-radius: 6px;
-      padding: .3rem .9rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: .78rem;
-      cursor: pointer;
-      transition: background .2s;
-    }
-
-    .btn-sub:hover {
-      background: rgba(0, 255, 136, .18)
-    }
-
-    .btn-sub:disabled {
-      opacity: .35;
-      cursor: not-allowed
-    }
-
-    /* Code editor */
-    #codeEditor {
-      flex: 1;
-      background: var(--bg);
-      border: none;
-      outline: none;
-      color: #9ecf9e;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: .82rem;
-      line-height: 1.75;
-      padding: 1rem 1.1rem;
-      resize: none;
-      tab-size: 4;
-      min-height: 200px;
-    }
-
-    /* Console */
-    .console {
-      height: 175px;
-      border-top: 1px solid var(--border);
-      background: var(--panel);
-      display: flex;
-      flex-direction: column
-    }
-
-    .console-hdr {
-      padding: .38rem .9rem;
-      font-size: .6rem;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--dim);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      gap: .4rem;
-    }
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%
-    }
-
-    #consoleOut {
-      flex: 1;
-      overflow-y: auto;
-      padding: .65rem .9rem;
-      font-size: .76rem;
-      line-height: 1.75;
-      white-space: pre-wrap;
-      color: var(--text)
-    }
-
-    /* ── REPORT ── */
-    #reportScreen {
-      display: none;
-      padding: 2rem;
-      align-items: flex-start;
-      justify-content: center;
-      background: var(--bg)
-    }
-
-    #reportScreen.active {
-      display: flex
-    }
-
-    .report-card {
-      width: 100%;
-      max-width: 820px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      overflow: hidden
-    }
-
-    .report-hdr {
-      padding: 1.8rem 2rem;
-      background: linear-gradient(135deg, rgba(0, 229, 255, .06), rgba(124, 58, 237, .06));
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    .report-title {
-      font-family: 'Syne', sans-serif;
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: #fff
-    }
-
-    .report-meta {
-      font-size: .75rem;
-      color: var(--dim);
-      margin-top: .2rem
-    }
-
-    .score-box {
-      background: var(--bg);
-      border: 2px solid var(--accent);
-      border-radius: 10px;
-      padding: .6rem 1.3rem;
-      text-align: center
-    }
-
-    .score-num {
-      font-family: 'Syne', sans-serif;
-      font-size: 2.2rem;
-      font-weight: 800;
-      color: var(--accent);
-      line-height: 1
-    }
-
-    .score-lbl {
-      font-size: .6rem;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--dim)
-    }
-
-    .report-body {
-      padding: 1.5rem 2rem
-    }
-
-    .rq {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      padding: 1rem 1.2rem;
-      margin-bottom: .75rem
-    }
-
-    .rq-hdr {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: .6rem
-    }
-
-    .rq-title {
-      font-weight: 700;
-      font-size: .87rem;
-      color: #fff
-    }
-
-    .chip {
-      font-size: .6rem;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      padding: .2rem .65rem;
-      border-radius: 20px;
-      font-weight: 700
-    }
-
-    .chip.accepted {
-      background: rgba(0, 255, 136, .12);
-      color: var(--green);
-      border: 1px solid var(--green)
-    }
-
-    .chip.attempted {
-      background: rgba(255, 209, 102, .12);
-      color: var(--yellow);
-      border: 1px solid var(--yellow)
-    }
-
-    .chip.not-attempted {
-      background: rgba(74, 96, 112, .15);
-      color: var(--dim);
-      border: 1px solid var(--border)
-    }
-
-    .rq-detail {
-      font-size: .76rem;
-      color: var(--dim);
-      line-height: 1.85
-    }
-
-    .rq-detail .hl {
-      color: var(--text)
-    }
-
-    .pbar-wrap {
-      background: var(--panel);
-      border-radius: 3px;
-      height: 5px;
-      margin-top: .5rem;
-      overflow: hidden
-    }
-
-    .pbar {
-      height: 100%;
-      background: linear-gradient(90deg, var(--accent), var(--green));
-      border-radius: 3px;
-      transition: width .5s
-    }
-
-    .report-actions {
-      display: flex;
-      gap: .75rem;
-      margin-top: 1.2rem;
-      justify-content: flex-end;
-      flex-wrap: wrap
-    }
-
-    .btn-dl {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--dim);
-      border-radius: 7px;
-      padding: .55rem 1.1rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: .78rem;
-      cursor: pointer;
-      transition: all .2s;
-    }
-
-    .btn-dl:hover {
-      border-color: var(--accent);
-      color: var(--accent)
-    }
-
-    .sheet-status {
-      text-align: center;
-      font-size: .73rem;
-      color: var(--dim);
-      margin-bottom: .6rem;
-      min-height: 1.1rem
-    }
-
-    /* Spinner */
-    .spin {
-      display: inline-block;
-      width: 11px;
-      height: 11px;
-      border: 2px solid rgba(0, 229, 255, .25);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin .6s linear infinite
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg)
-      }
-    }
-
-    /* Toast */
-    #toast {
-      position: fixed;
-      bottom: 2rem;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      padding: .65rem 1.3rem;
-      font-size: .8rem;
-      z-index: 9999;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .3s;
-      white-space: nowrap;
-    }
-
-    #toast.show {
-      opacity: 1
-    }
-
-    #toast.success {
-      border-color: var(--green);
-      color: var(--green)
-    }
-
-    #toast.error {
-      border-color: var(--red);
-      color: var(--red)
-    }
-
-    #toast.info {
-      border-color: var(--accent);
-      color: var(--accent)
-    }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar {
-      width: 5px;
-      height: 5px
-    }
-
-    ::-webkit-scrollbar-track {
-      background: var(--bg)
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: var(--border);
-      border-radius: 3px
-    }
-
-    @media(max-width:700px) {
-      .contest-body {
-        grid-template-columns: 1fr;
-        height: auto
-      }
-
-      .prob-panel {
-        border-right: none;
-        border-bottom: 1px solid var(--border)
-      }
-
-      #codeEditor {
-        min-height: 260px
-      }
-    }
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeArena — Programming Contest</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b0f14;--panel:#111820;--card:#161d27;--border:#1e2d3d;
+  --accent:#00e5ff;--green:#00ff88;--red:#ff4d6d;--yellow:#ffd166;--purple:#7c3aed;
+  --text:#c9d6e3;--dim:#4a6070;
+}
+body{font-family:'JetBrains Mono',monospace;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh}
+.screen.active{display:block}
+#contestScreen.active{display:flex;flex-direction:column}
+
+/* ── LOGIN ── */
+#loginScreen{display:none;align-items:center;justify-content:center;padding:2rem}
+#loginScreen.active{display:flex}
+.login-wrap{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:2.5rem;width:100%;max-width:440px;
+  box-shadow:0 0 60px rgba(0,229,255,0.04);
+}
+.logo{
+  font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;text-align:center;
+  background:linear-gradient(135deg,var(--accent),var(--purple));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.3rem;
+}
+.logo-sub{text-align:center;font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:2rem}
+.field{margin-bottom:1.1rem}
+.field label{display:block;font-size:.65rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);margin-bottom:.45rem}
+.field input{
+  width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;
+  padding:.7rem 1rem;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.88rem;outline:none;
+}
+.field input:focus{border-color:var(--accent)}
+.btn-start{
+  width:100%;padding:.8rem;background:linear-gradient(135deg,var(--accent),#0099bb);
+  border:none;border-radius:8px;color:#000;font-family:'Syne',sans-serif;
+  font-weight:700;font-size:.95rem;cursor:pointer;margin-top:.5rem;
+}
+.rules{margin-top:1.5rem;padding:.9rem 1rem;background:rgba(0,229,255,0.03);border:1px solid rgba(0,229,255,0.08);border-radius:8px;font-size:.72rem;color:var(--dim);line-height:1.9}
+.rules b{color:var(--accent)}
+
+/* ── TOPBAR ── */
+.topbar{
+  display:flex;align-items:center;gap:1rem;padding:.7rem 1.2rem;
+  background:var(--panel);border-bottom:1px solid var(--border);flex-wrap:wrap;
+}
+.topbar-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;background:linear-gradient(135deg,var(--accent),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.user-info{font-size:.75rem;color:var(--dim);background:var(--card);border:1px solid var(--border);padding:.3rem .8rem;border-radius:20px}
+.user-info span{color:var(--accent)}
+.timer{
+  font-size:1rem;font-weight:700;letter-spacing:2px;color:var(--green);
+  background:var(--card);border:1px solid var(--border);padding:.35rem .9rem;border-radius:8px;
+}
+.timer.warn{color:var(--yellow);border-color:var(--yellow)}
+.timer.danger{color:var(--red);border-color:var(--red);animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.btn-finish{
+  margin-left:auto;background:rgba(124,58,237,.1);border:1px solid var(--purple);
+  color:var(--purple);border-radius:6px;padding:.35rem 1rem;
+  font-family:'JetBrains Mono',monospace;font-size:.78rem;cursor:pointer;
+}
+.btn-finish:hover{background:rgba(124,58,237,.2)}
+
+/* ── Q NAV ── */
+.qnav{display:flex;gap:.5rem;padding:.6rem 1.2rem;background:var(--panel);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.qdot{
+  width:34px;height:34px;border-radius:7px;border:1px solid var(--border);
+  background:var(--card);color:var(--dim);font-size:.8rem;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;
+  transition:all .2s;
+}
+.qdot.cur{border-color:var(--accent);color:var(--accent);background:rgba(0,229,255,.07)}
+.qdot.done{border-color:var(--green);color:var(--green);background:rgba(0,255,136,.07)}
+.qdot.done::after{content:'✓';position:absolute;top:-5px;right:-5px;font-size:.55rem;background:var(--green);color:#000;border-radius:50%;width:13px;height:13px;display:flex;align-items:center;justify-content:center}
+
+/* ── CONTEST BODY ── */
+.contest-body{display:grid;grid-template-columns:1fr 1fr;flex:1;overflow:hidden;height:calc(100vh - 118px)}
+.prob-panel{padding:1.2rem 1.4rem;overflow-y:auto;border-right:1px solid var(--border);background:var(--panel)}
+.editor-panel{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+
+/* Problem */
+.prob-tag{display:inline-block;font-size:.62rem;letter-spacing:1.5px;text-transform:uppercase;padding:.2rem .6rem;border-radius:20px;border:1px solid var(--purple);color:var(--purple);margin-bottom:.8rem}
+.prob-title{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:#fff;margin-bottom:.6rem}
+.prob-desc{font-size:.8rem;line-height:1.85;color:var(--text);margin-bottom:1rem}
+.io-label{font-size:.6rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);margin:.9rem 0 .35rem}
+.io-box{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:.65rem .9rem;font-size:.78rem;line-height:1.7;color:var(--accent);white-space:pre}
+.tc-list{display:flex;flex-direction:column;gap:.4rem;margin-top:.4rem}
+.tc-row{display:grid;grid-template-columns:1fr 1fr 56px;gap:.5rem;align-items:center;padding:.5rem .75rem;background:var(--bg);border:1px solid var(--border);border-radius:7px;font-size:.74rem}
+.tc-label{font-size:.58rem;color:var(--dim);margin-bottom:.15rem}
+.badge{font-size:.6rem;padding:.15rem .45rem;border-radius:10px;text-align:center;font-weight:700;border:1px solid var(--border);color:var(--dim)}
+.badge.pass{background:rgba(0,255,136,.12);color:var(--green);border-color:var(--green)}
+.badge.fail{background:rgba(255,77,109,.12);color:var(--red);border-color:var(--red)}
+.badge.ce{background:rgba(255,209,102,.12);color:var(--yellow);border-color:var(--yellow)}
+
+/* Editor toolbar */
+.editor-toolbar{
+  display:flex;align-items:center;gap:.6rem;padding:.55rem .9rem;
+  background:var(--panel);border-bottom:1px solid var(--border);flex-wrap:wrap;
+}
+.lang-sel{
+  background:var(--bg);border:1px solid var(--border);border-radius:6px;
+  color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.78rem;
+  padding:.3rem .7rem;outline:none;cursor:pointer;
+}
+.lang-sel:focus{border-color:var(--accent)}
+.btn-run{
+  display:flex;align-items:center;gap:.35rem;
+  background:rgba(0,229,255,.08);border:1px solid var(--accent);color:var(--accent);
+  border-radius:6px;padding:.3rem .9rem;font-family:'JetBrains Mono',monospace;
+  font-size:.78rem;cursor:pointer;transition:background .2s;
+}
+.btn-run:hover{background:rgba(0,229,255,.18)}
+.btn-run:disabled{opacity:.35;cursor:not-allowed}
+.btn-sub{
+  display:flex;align-items:center;gap:.35rem;margin-left:auto;
+  background:rgba(0,255,136,.08);border:1px solid var(--green);color:var(--green);
+  border-radius:6px;padding:.3rem .9rem;font-family:'JetBrains Mono',monospace;
+  font-size:.78rem;cursor:pointer;transition:background .2s;
+}
+.btn-sub:hover{background:rgba(0,255,136,.18)}
+.btn-sub:disabled{opacity:.35;cursor:not-allowed}
+
+/* Code editor */
+#codeEditor{
+  flex:1;background:var(--bg);border:none;outline:none;
+  color:#9ecf9e;font-family:'JetBrains Mono',monospace;font-size:.82rem;
+  line-height:1.75;padding:1rem 1.1rem;resize:none;tab-size:4;
+  min-height:200px;
+}
+
+/* Console */
+.console{height:175px;border-top:1px solid var(--border);background:var(--panel);display:flex;flex-direction:column}
+.console-hdr{
+  padding:.38rem .9rem;font-size:.6rem;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--dim);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.4rem;
+}
+.dot{width:8px;height:8px;border-radius:50%}
+#consoleOut{flex:1;overflow-y:auto;padding:.65rem .9rem;font-size:.76rem;line-height:1.75;white-space:pre-wrap;color:var(--text)}
+
+/* ── REPORT ── */
+#reportScreen{display:none;padding:2rem;align-items:flex-start;justify-content:center;background:var(--bg)}
+#reportScreen.active{display:flex}
+.report-card{width:100%;max-width:820px;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.report-hdr{
+  padding:1.8rem 2rem;background:linear-gradient(135deg,rgba(0,229,255,.06),rgba(124,58,237,.06));
+  border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;
+}
+.report-title{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:#fff}
+.report-meta{font-size:.75rem;color:var(--dim);margin-top:.2rem}
+.score-box{background:var(--bg);border:2px solid var(--accent);border-radius:10px;padding:.6rem 1.3rem;text-align:center}
+.score-num{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;color:var(--accent);line-height:1}
+.score-lbl{font-size:.6rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim)}
+.report-body{padding:1.5rem 2rem}
+.rq{background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:1rem 1.2rem;margin-bottom:.75rem}
+.rq-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem}
+.rq-title{font-weight:700;font-size:.87rem;color:#fff}
+.chip{font-size:.6rem;letter-spacing:1px;text-transform:uppercase;padding:.2rem .65rem;border-radius:20px;font-weight:700}
+.chip.accepted{background:rgba(0,255,136,.12);color:var(--green);border:1px solid var(--green)}
+.chip.attempted{background:rgba(255,209,102,.12);color:var(--yellow);border:1px solid var(--yellow)}
+.chip.not-attempted{background:rgba(74,96,112,.15);color:var(--dim);border:1px solid var(--border)}
+.rq-detail{font-size:.76rem;color:var(--dim);line-height:1.85}
+.rq-detail .hl{color:var(--text)}
+.pbar-wrap{background:var(--panel);border-radius:3px;height:5px;margin-top:.5rem;overflow:hidden}
+.pbar{height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:3px;transition:width .5s}
+.report-actions{display:flex;gap:.75rem;margin-top:1.2rem;justify-content:flex-end;flex-wrap:wrap}
+.btn-dl{
+  background:transparent;border:1px solid var(--border);color:var(--dim);
+  border-radius:7px;padding:.55rem 1.1rem;font-family:'JetBrains Mono',monospace;
+  font-size:.78rem;cursor:pointer;transition:all .2s;
+}
+.btn-dl:hover{border-color:var(--accent);color:var(--accent)}
+.sheet-status{text-align:center;font-size:.73rem;color:var(--dim);margin-bottom:.6rem;min-height:1.1rem}
+
+/* Spinner */
+.spin{display:inline-block;width:11px;height:11px;border:2px solid rgba(0,229,255,.25);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Toast */
+#toast{
+  position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);
+  background:var(--card);border:1px solid var(--border);border-radius:9px;
+  padding:.65rem 1.3rem;font-size:.8rem;z-index:9999;
+  opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;
+}
+#toast.show{opacity:1}
+#toast.success{border-color:var(--green);color:var(--green)}
+#toast.error{border-color:var(--red);color:var(--red)}
+#toast.info{border-color:var(--accent);color:var(--accent)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+@media(max-width:700px){
+  .contest-body{grid-template-columns:1fr;height:auto}
+  .prob-panel{border-right:none;border-bottom:1px solid var(--border)}
+  #codeEditor{min-height:260px}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
-
 <body>
 
-  <!-- LOGIN -->
-  <div id="loginScreen" class="screen">
-    <div class="login-wrap">
-      <div class="logo">⌨ CodeArena</div>
-      <div class="logo-sub">Programming Contest</div>
-      <div class="field">
-        <label>Full Name</label>
-        <input id="inp_name" type="text" placeholder="e.g. Hari S" autocomplete="off">
+<!-- LOGIN -->
+<div id="loginScreen" class="screen">
+  <div class="login-wrap">
+    <div class="logo">⌨ CodeArena</div>
+    <div class="logo-sub">Programming Contest</div>
+    <div class="field">
+      <label>Full Name</label>
+      <input id="inp_name" type="text" placeholder="e.g. Hari S" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Roll Number</label>
+      <input id="inp_roll" type="text" placeholder="e.g. 22AI001" autocomplete="off">
+    </div>
+    <button class="btn-start" onclick="startContest()">Start Contest →</button>
+    <div class="rules">
+      <b>Rules:</b><br>
+      · 5 questions · 75 minutes<br>
+      · All test cases must pass to submit<br>
+      · Languages: C, C++, Python 3, Java<br>
+      · Report sent to Google Sheet on finish
+    </div>
+  </div>
+</div>
+
+<!-- CONTEST -->
+<div id="contestScreen" class="screen">
+  <div class="topbar">
+    <div class="topbar-logo">⌨ CodeArena</div>
+    <div class="user-info">👤 <span id="topUser">—</span></div>
+    <div class="timer" id="timerEl">75:00</div>
+    <button class="btn-finish" onclick="finishContest()">📋 Finish &amp; Report</button>
+  </div>
+  <div class="qnav" id="qnav"></div>
+  <div class="contest-body">
+    <div class="prob-panel" id="probPanel"></div>
+    <div class="editor-panel">
+      <div class="editor-toolbar">
+        <select class="lang-sel" id="langSel" onchange="onLangChange()">
+          <option value="python">Python 3</option>
+          <option value="c">C (GCC)</option>
+          <option value="cpp">C++</option>
+          <option value="java">Java</option>
+        </select>
+        <button class="btn-run" id="btnRun" onclick="runCode()">▶ Run</button>
+        <button class="btn-sub" id="btnSub" onclick="submitQ()" disabled>✓ Submit &amp; Next</button>
       </div>
-      <div class="field">
-        <label>Roll Number</label>
-        <input id="inp_roll" type="text" placeholder="e.g. 22AI001" autocomplete="off">
-      </div>
-      <button class="btn-start" onclick="startContest()">Start Contest →</button>
-      <div class="rules">
-        <b>Rules:</b><br>
-        · 5 questions · 75 minutes<br>
-        · All test cases must pass to submit<br>
-        · Languages: C, C++, Python 3, Java<br>
-        · Report sent to Google Sheet on finish
+      <textarea id="codeEditor" spellcheck="false"></textarea>
+      <div class="console">
+        <div class="console-hdr">
+          <span class="dot" style="background:#ff5f56"></span>
+          <span class="dot" style="background:#ffbd2e"></span>
+          <span class="dot" style="background:#27c93f"></span>
+          Output
+        </div>
+        <div id="consoleOut">// Run your code to see output here...</div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- CONTEST -->
-  <div id="contestScreen" class="screen">
-    <div class="topbar">
-      <div class="topbar-logo">⌨ CodeArena</div>
-      <div class="user-info">👤 <span id="topUser">—</span></div>
-      <div class="timer" id="timerEl">75:00</div>
-      <button class="btn-finish" onclick="finishContest()">📋 Finish &amp; Report</button>
+<!-- REPORT -->
+<div id="reportScreen" class="screen">
+  <div class="report-card">
+    <div class="report-hdr">
+      <div>
+        <div class="report-title">Contest Report</div>
+        <div class="report-meta" id="rMeta"></div>
+      </div>
+      <div class="score-box">
+        <div class="score-num" id="rScore">0/5</div>
+        <div class="score-lbl">Solved</div>
+      </div>
     </div>
-    <div class="qnav" id="qnav"></div>
-    <div class="contest-body">
-      <div class="prob-panel" id="probPanel"></div>
-      <div class="editor-panel">
-        <div class="editor-toolbar">
-          <select class="lang-sel" id="langSel" onchange="onLangChange()">
-            <option value="python">Python 3</option>
-            <option value="c">C (GCC)</option>
-            <option value="cpp">C++</option>
-            <option value="java">Java</option>
-          </select>
-          <button class="btn-run" id="btnRun" onclick="runCode()">▶ Run</button>
-          <button class="btn-sub" id="btnSub" onclick="submitQ()" disabled>✓ Submit &amp; Next</button>
-        </div>
-        <textarea id="codeEditor" spellcheck="false"></textarea>
-        <div class="console">
-          <div class="console-hdr">
-            <span class="dot" style="background:#ff5f56"></span>
-            <span class="dot" style="background:#ffbd2e"></span>
-            <span class="dot" style="background:#27c93f"></span>
-            Output
-          </div>
-          <div id="consoleOut">// Run your code to see output here...</div>
-        </div>
+    <div class="report-body">
+      <div class="sheet-status" id="sheetStatus"></div>
+      <div id="rContent"></div>
+      <div class="report-actions">
+        <button class="btn-dl" onclick="downloadReport()">⬇ Download .txt</button>
+        <button class="btn-dl" onclick="location.reload()">↺ New Session</button>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- REPORT -->
-  <div id="reportScreen" class="screen">
-    <div class="report-card">
-      <div class="report-hdr">
-        <div>
-          <div class="report-title">Contest Report</div>
-          <div class="report-meta" id="rMeta"></div>
-        </div>
-        <div class="score-box">
-          <div class="score-num" id="rScore">0/5</div>
-          <div class="score-lbl">Solved</div>
-        </div>
-      </div>
-      <div class="report-body">
-        <div class="sheet-status" id="sheetStatus"></div>
-        <div id="rContent"></div>
-        <div class="report-actions">
-          <button class="btn-dl" onclick="downloadReport()">⬇ Download .txt</button>
-          <button class="btn-dl" onclick="location.reload()">↺ New Session</button>
-        </div>
-      </div>
-    </div>
-  </div>
+<div id="toast"></div>
 
-  <div id="toast"></div>
+<script>
+// ══════════════════════════════════════════════════════════════
+//  CONFIG — EmailJS  (https://www.emailjs.com — free account)
+//  Fill these 3 values after creating your EmailJS account
+// ══════════════════════════════════════════════════════════════
+const EMAILJS_SERVICE_ID  = 'service_gmz45z3';   // e.g. service_abc123
+const EMAILJS_TEMPLATE_ID = 'template_yxjotox';  // e.g. template_xyz789
+const EMAILJS_PUBLIC_KEY  = '0pL_0pR0N8Gb1eyK1';   // e.g. aBcDeFgHiJkLm
+const REPORT_TO_EMAIL     = 'mharisaravanan@gmail.com';   // your email address
 
-  <script>
-    // ══════════════════════════════════════════════════════════════
-    //  CONFIG — EmailJS  (https://www.emailjs.com — free account)
-    //  Fill these 3 values after creating your EmailJS account
-    // ══════════════════════════════════════════════════════════════
-    const EMAILJS_SERVICE_ID = 'service_gmz45z3';   // e.g. service_abc123
-    const EMAILJS_TEMPLATE_ID = 'template_yxjotox';  // e.g. template_xyz789
-    const EMAILJS_PUBLIC_KEY = '0pL_0pR0N8Gb1eyK1';   // e.g. aBcDeFgHiJkLm
-    const REPORT_TO_EMAIL = 'mharisaravanan@gmail.com';   // your email address
+// ══════════════════════════════════════════════════════════════
+//  QUESTIONS
+// ══════════════════════════════════════════════════════════════
+const QS = [
+  {
+    title:'Sum of Two Numbers', diff:'Easy',
+    desc:'Given two integers A and B (each on a separate line), print their sum.',
+    inf:'Line 1: integer A\nLine 2: integer B',
+    outf:'A + B',
+    con:'-10^9 ≤ A, B ≤ 10^9',
+    tc:[
+      {i:'3\n5',   e:'8',   v:true},
+      {i:'-4\n10', e:'6',   v:true},
+      {i:'0\n0',   e:'0',   v:false},
+      {i:'100\n200',e:'300',v:false},
+      {i:'-999\n1000',e:'1',v:false},
+    ]
+  },
+  {
+    title:'Reverse a String', diff:'Easy',
+    desc:'Given a string S (no spaces), print it reversed.',
+    inf:'A single string',
+    outf:'Reversed string',
+    con:'1 ≤ |S| ≤ 10^5',
+    tc:[
+      {i:'hello',      e:'olleh',       v:true},
+      {i:'abcde',      e:'edcba',       v:true},
+      {i:'a',          e:'a',           v:false},
+      {i:'racecar',    e:'racecar',     v:false},
+      {i:'Programming',e:'gnimmargorP', v:false},
+    ]
+  },
+  {
+    title:'Prime Check', diff:'Medium',
+    desc:'Given an integer N, print YES if prime, otherwise NO.',
+    inf:'A single integer N',
+    outf:'YES or NO',
+    con:'1 ≤ N ≤ 10^6',
+    tc:[
+      {i:'7',  e:'YES', v:true},
+      {i:'10', e:'NO',  v:true},
+      {i:'2',  e:'YES', v:false},
+      {i:'1',  e:'NO',  v:false},
+      {i:'97', e:'YES', v:false},
+    ]
+  },
+  {
+    title:'Nth Fibonacci', diff:'Medium',
+    desc:'Print the N-th Fibonacci number (0-indexed). Sequence: 0,1,1,2,3,5,8,13,...',
+    inf:'A single integer N',
+    outf:'The N-th Fibonacci number',
+    con:'0 ≤ N ≤ 30',
+    tc:[
+      {i:'5',  e:'5',   v:true},
+      {i:'10', e:'55',  v:true},
+      {i:'0',  e:'0',   v:false},
+      {i:'1',  e:'1',   v:false},
+      {i:'15', e:'610', v:false},
+    ]
+  },
+  {
+    title:'Count Vowels', diff:'Medium',
+    desc:'Given a string S, count vowels (a,e,i,o,u — case insensitive).',
+    inf:'A single string',
+    outf:'Count of vowels',
+    con:'1 ≤ |S| ≤ 10^5',
+    tc:[
+      {i:'hello',       e:'2', v:true},
+      {i:'AEIOU',       e:'5', v:true},
+      {i:'rhythm',      e:'0', v:false},
+      {i:'programming', e:'3', v:false},
+      {i:'OpenAI',      e:'4', v:false},
+    ]
+  },
+];
 
-    // ══════════════════════════════════════════════════════════════
-    //  QUESTIONS
-    // ══════════════════════════════════════════════════════════════
-    const QS = [
-      {
-        title: 'Sum of Two Numbers', diff: 'Easy',
-        desc: 'Given two integers A and B (each on a separate line), print their sum.',
-        inf: 'Line 1: integer A\nLine 2: integer B',
-        outf: 'A + B',
-        con: '-10^9 ≤ A, B ≤ 10^9',
-        tc: [
-          { i: '3\n5', e: '8', v: true },
-          { i: '-4\n10', e: '6', v: true },
-          { i: '0\n0', e: '0', v: false },
-          { i: '100\n200', e: '300', v: false },
-          { i: '-999\n1000', e: '1', v: false },
-        ]
-      },
-      {
-        title: 'Reverse a String', diff: 'Easy',
-        desc: 'Given a string S (no spaces), print it reversed.',
-        inf: 'A single string',
-        outf: 'Reversed string',
-        con: '1 ≤ |S| ≤ 10^5',
-        tc: [
-          { i: 'hello', e: 'olleh', v: true },
-          { i: 'abcde', e: 'edcba', v: true },
-          { i: 'a', e: 'a', v: false },
-          { i: 'racecar', e: 'racecar', v: false },
-          { i: 'Programming', e: 'gnimmargorP', v: false },
-        ]
-      },
-      {
-        title: 'Prime Check', diff: 'Medium',
-        desc: 'Given an integer N, print YES if prime, otherwise NO.',
-        inf: 'A single integer N',
-        outf: 'YES or NO',
-        con: '1 ≤ N ≤ 10^6',
-        tc: [
-          { i: '7', e: 'YES', v: true },
-          { i: '10', e: 'NO', v: true },
-          { i: '2', e: 'YES', v: false },
-          { i: '1', e: 'NO', v: false },
-          { i: '97', e: 'YES', v: false },
-        ]
-      },
-      {
-        title: 'Nth Fibonacci', diff: 'Medium',
-        desc: 'Print the N-th Fibonacci number (0-indexed). Sequence: 0,1,1,2,3,5,8,13,...',
-        inf: 'A single integer N',
-        outf: 'The N-th Fibonacci number',
-        con: '0 ≤ N ≤ 30',
-        tc: [
-          { i: '5', e: '5', v: true },
-          { i: '10', e: '55', v: true },
-          { i: '0', e: '0', v: false },
-          { i: '1', e: '1', v: false },
-          { i: '15', e: '610', v: false },
-        ]
-      },
-      {
-        title: 'Count Vowels', diff: 'Medium',
-        desc: 'Given a string S, count vowels (a,e,i,o,u — case insensitive).',
-        inf: 'A single string',
-        outf: 'Count of vowels',
-        con: '1 ≤ |S| ≤ 10^5',
-        tc: [
-          { i: 'hello', e: '2', v: true },
-          { i: 'AEIOU', e: '5', v: true },
-          { i: 'rhythm', e: '0', v: false },
-          { i: 'programming', e: '3', v: false },
-          { i: 'OpenAI', e: '4', v: false },
-        ]
-      },
-    ];
+// ══════════════════════════════════════════════════════════════
+//  STARTER TEMPLATES
+// ══════════════════════════════════════════════════════════════
+const TPL = {
+  python:[
+    'a = int(input())\nb = int(input())\nprint(a + b)',
+    's = input()\nprint(s[::-1])',
+    'n = int(input())\ndef is_prime(n):\n    if n < 2: return False\n    i = 2\n    while i*i <= n:\n        if n % i == 0: return False\n        i += 1\n    return True\nprint("YES" if is_prime(n) else "NO")',
+    'n = int(input())\na, b = 0, 1\nif n == 0:\n    print(0)\nelse:\n    for _ in range(n - 1):\n        a, b = b, a + b\n    print(b)',
+    's = input()\nprint(sum(1 for c in s if c.lower() in "aeiou"))',
+  ],
+  c:[
+    '#include <stdio.h>\nint main(){\n    long long a,b;\n    scanf("%lld %lld",&a,&b);\n    printf("%lld\\n",a+b);\n    return 0;\n}',
+    '#include <stdio.h>\n#include <string.h>\nint main(){\n    char s[100002];\n    scanf("%s",s);\n    int n=strlen(s);\n    for(int i=n-1;i>=0;i--) putchar(s[i]);\n    putchar(\'\\n\');\n    return 0;\n}',
+    '#include <stdio.h>\nint prime(int n){\n    if(n<2) return 0;\n    for(int i=2;(long long)i*i<=n;i++) if(n%i==0) return 0;\n    return 1;\n}\nint main(){\n    int n; scanf("%d",&n);\n    printf("%s\\n",prime(n)?"YES":"NO");\n    return 0;\n}',
+    '#include <stdio.h>\nint main(){\n    int n; scanf("%d",&n);\n    long long a=0,b=1;\n    if(n==0){printf("0\\n");return 0;}\n    for(int i=2;i<=n;i++){long long c=a+b;a=b;b=c;}\n    printf("%lld\\n",b);\n    return 0;\n}',
+    '#include <stdio.h>\n#include <string.h>\nint main(){\n    char s[100002]; scanf("%s",s);\n    int cnt=0;\n    for(int i=0;s[i];i++){\n        char c=s[i]|32;\n        if(c==\'a\'||c==\'e\'||c==\'i\'||c==\'o\'||c==\'u\') cnt++;\n    }\n    printf("%d\\n",cnt);\n    return 0;\n}',
+  ],
+  cpp:[
+    '#include<iostream>\nusing namespace std;\nint main(){\n    long long a,b;\n    cin>>a>>b;\n    cout<<a+b<<endl;\n}',
+    '#include<iostream>\n#include<algorithm>\nusing namespace std;\nint main(){\n    string s; cin>>s;\n    reverse(s.begin(),s.end());\n    cout<<s<<endl;\n}',
+    '#include<iostream>\nusing namespace std;\nbool prime(int n){\n    if(n<2) return false;\n    for(int i=2;(long long)i*i<=n;i++) if(n%i==0) return false;\n    return true;\n}\nint main(){\n    int n; cin>>n;\n    cout<<(prime(n)?"YES":"NO")<<endl;\n}',
+    '#include<iostream>\nusing namespace std;\nint main(){\n    int n; cin>>n;\n    long long a=0,b=1;\n    if(n==0){cout<<0;return 0;}\n    for(int i=2;i<=n;i++){long long c=a+b;a=b;b=c;}\n    cout<<b<<endl;\n}',
+    '#include<iostream>\nusing namespace std;\nint main(){\n    string s; cin>>s;\n    int cnt=0;\n    for(char c:s){\n        c=tolower(c);\n        if(c==\'a\'||c==\'e\'||c==\'i\'||c==\'o\'||c==\'u\') cnt++;\n    }\n    cout<<cnt<<endl;\n}',
+  ],
+  java:[
+    'import java.util.Scanner;\npublic class Main{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        long a=sc.nextLong(),b=sc.nextLong();\n        System.out.println(a+b);\n    }\n}',
+    'import java.util.Scanner;\npublic class Main{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        String s=sc.next();\n        System.out.println(new StringBuilder(s).reverse());\n    }\n}',
+    'import java.util.Scanner;\npublic class Main{\n    static boolean prime(int n){\n        if(n<2) return false;\n        for(int i=2;(long)i*i<=n;i++) if(n%i==0) return false;\n        return true;\n    }\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        System.out.println(prime(sc.nextInt())?"YES":"NO");\n    }\n}',
+    'import java.util.Scanner;\npublic class Main{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        int n=sc.nextInt();\n        long a=0,b=1;\n        if(n==0){System.out.println(0);return;}\n        for(int i=2;i<=n;i++){long c=a+b;a=b;b=c;}\n        System.out.println(b);\n    }\n}',
+    'import java.util.Scanner;\npublic class Main{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        String s=sc.next();\n        int cnt=0;\n        for(char c:s.toLowerCase().toCharArray())\n            if("aeiou".indexOf(c)>=0) cnt++;\n        System.out.println(cnt);\n    }\n}',
+  ],
+};
 
-    // ══════════════════════════════════════════════════════════════
-    //  STARTER TEMPLATES
-    // ══════════════════════════════════════════════════════════════
-    const TPL = {
-      python: [
-        'a = int(input())\nb = int(input())\nprint(a + b)',
-        's = input()\nprint(s[::-1])',
-        'n = int(input())\ndef is_prime(n):\n    if n < 2: return False\n    i = 2\n    while i*i <= n:\n        if n % i == 0: return False\n        i += 1\n    return True\nprint("YES" if is_prime(n) else "NO")',
-        'n = int(input())\na, b = 0, 1\nif n == 0:\n    print(0)\nelse:\n    for _ in range(n - 1):\n        a, b = b, a + b\n    print(b)',
-        's = input()\nprint(sum(1 for c in s if c.lower() in "aeiou"))',
-      ],
-      c: [
-        '#include <stdio.h>\nint main(){\n    long long a,b;\n    scanf("%lld %lld",&a,&b);\n    printf("%lld\\n",a+b);\n    return 0;\n}',
-        '#include <stdio.h>\n#include <string.h>\nint main(){\n    char s[100002];\n    scanf("%s",s);\n    int n=strlen(s);\n    for(int i=n-1;i>=0;i--) putchar(s[i]);\n    putchar(\'\\n\');\n    return 0;\n}',
-        '#include <stdio.h>\nint prime(int n){\n    if(n<2) return 0;\n    for(int i=2;(long long)i*i<=n;i++) if(n%i==0) return 0;\n    return 1;\n}\nint main(){\n    int n; scanf("%d",&n);\n    printf("%s\\n",prime(n)?"YES":"NO");\n    return 0;\n}',
-        '#include <stdio.h>\nint main(){\n    int n; scanf("%d",&n);\n    long long a=0,b=1;\n    if(n==0){printf("0\\n");return 0;}\n    for(int i=2;i<=n;i++){long long c=a+b;a=b;b=c;}\n    printf("%lld\\n",b);\n    return 0;\n}',
-        '#include <stdio.h>\n#include <string.h>\nint main(){\n    char s[100002]; scanf("%s",s);\n    int cnt=0;\n    for(int i=0;s[i];i++){\n        char c=s[i]|32;\n        if(c==\'a\'||c==\'e\'||c==\'i\'||c==\'o\'||c==\'u\') cnt++;\n    }\n    printf("%d\\n",cnt);\n    return 0;\n}',
-      ],
-      cpp: [
-        '#include<iostream>\nusing namespace std;\nint main(){\n    long long a,b;\n    cin>>a>>b;\n    cout<<a+b<<endl;\n}',
-        '#include<iostream>\n#include<algorithm>\nusing namespace std;\nint main(){\n    string s; cin>>s;\n    reverse(s.begin(),s.end());\n    cout<<s<<endl;\n}',
-        '#include<iostream>\nusing namespace std;\nbool prime(int n){\n    if(n<2) return false;\n    for(int i=2;(long long)i*i<=n;i++) if(n%i==0) return false;\n    return true;\n}\nint main(){\n    int n; cin>>n;\n    cout<<(prime(n)?"YES":"NO")<<endl;\n}',
-        '#include<iostream>\nusing namespace std;\nint main(){\n    int n; cin>>n;\n    long long a=0,b=1;\n    if(n==0){cout<<0;return 0;}\n    for(int i=2;i<=n;i++){long long c=a+b;a=b;b=c;}\n    cout<<b<<endl;\n}',
-        '#include<iostream>\nusing namespace std;\nint main(){\n    string s; cin>>s;\n    int cnt=0;\n    for(char c:s){\n        c=tolower(c);\n        if(c==\'a\'||c==\'e\'||c==\'i\'||c==\'o\'||c==\'u\') cnt++;\n    }\n    cout<<cnt<<endl;\n}',
-      ],
-      java: [
-        'import java.util.Scanner;\npublic class Main{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        long a=sc.nextLong(),b=sc.nextLong();\n        System.out.println(a+b);\n    }\n}',
-        'import java.util.Scanner;\npublic class Main{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        String s=sc.next();\n        System.out.println(new StringBuilder(s).reverse());\n    }\n}',
-        'import java.util.Scanner;\npublic class Main{\n    static boolean prime(int n){\n        if(n<2) return false;\n        for(int i=2;(long)i*i<=n;i++) if(n%i==0) return false;\n        return true;\n    }\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        System.out.println(prime(sc.nextInt())?"YES":"NO");\n    }\n}',
-        'import java.util.Scanner;\npublic class Main{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        int n=sc.nextInt();\n        long a=0,b=1;\n        if(n==0){System.out.println(0);return;}\n        for(int i=2;i<=n;i++){long c=a+b;a=b;b=c;}\n        System.out.println(b);\n    }\n}',
-        'import java.util.Scanner;\npublic class Main{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        String s=sc.next();\n        int cnt=0;\n        for(char c:s.toLowerCase().toCharArray())\n            if("aeiou".indexOf(c)>=0) cnt++;\n        System.out.println(cnt);\n    }\n}',
-      ],
-    };
+// ══════════════════════════════════════════════════════════════
+//  JUDGE0 CONFIG
+// ══════════════════════════════════════════════════════════════
+const LANG_ID = {python:71, c:50, cpp:54, java:62};
+const LANG_FILE = {python:'main.py', c:'main.c', cpp:'main.cpp', java:'Main.java'};
 
-    // ══════════════════════════════════════════════════════════════
-    //  JUDGE0 CONFIG
-    // ══════════════════════════════════════════════════════════════
-    const LANG_ID = { python: 71, c: 50, cpp: 54, java: 62 };
-    const LANG_FILE = { python: 'main.py', c: 'main.c', cpp: 'main.cpp', java: 'Main.java' };
+// ══════════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════════
+let S = {
+  name:'', roll:'',
+  qi:0, lang:'python',
+  codes:{},        // key = "qi_lang"
+  res:[],          // per question results
+  tcRes:[],        // current question tc statuses
+  timerLeft:75*60,
+  timerInt:null,
+  startTime:null,
+  tabHits:0,
+};
 
-    // ══════════════════════════════════════════════════════════════
-    //  STATE
-    // ══════════════════════════════════════════════════════════════
-    let S = {
-      name: '', roll: '',
-      qi: 0, lang: 'python',
-      codes: {},        // key = "qi_lang"
-      res: [],          // per question results
-      tcRes: [],        // current question tc statuses
-      timerLeft: 75 * 60,
-      timerInt: null,
-      startTime: null,
-      tabHits: 0,
-    };
+// ══════════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════════
+window.onload = () => {
+  show('loginScreen');
+};
 
-    // ══════════════════════════════════════════════════════════════
-    //  INIT
-    // ══════════════════════════════════════════════════════════════
-    window.onload = () => {
-      show('loginScreen');
-    };
+function show(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
 
-    function show(id) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
+// ══════════════════════════════════════════════════════════════
+//  START CONTEST
+// ══════════════════════════════════════════════════════════════
+function startContest(){
+  const name = document.getElementById('inp_name').value.trim();
+  const roll = document.getElementById('inp_roll').value.trim();
+  if(!name || !roll){ toast('Enter your name and roll number.','error'); return; }
+  S.name = name; S.roll = roll;
+  S.startTime = new Date();
+  S.res = QS.map(() => ({status:'not-attempted',tcRes:[],lang:'python',attempts:0,solvedAt:null,timeTaken:0}));
+  document.getElementById('topUser').textContent = name + ' · ' + roll;
+  show('contestScreen');
+  buildQNav();
+  loadQ(0);
+  startTimer();
+  // Tab switch detection — 1st switch warns, 2nd switch finishes contest
+  document.addEventListener('visibilitychange', () => {
+    if(document.hidden){
+      S.tabHits++;
+      if(S.tabHits === 1){
+        toast('⚠ WARNING: Tab switch detected! Next switch will end contest.','error');
+      } else {
+        clearInterval(S.timerInt);
+        toast('🚫 Contest ended: tab switched ' + S.tabHits + ' times.','error');
+        setTimeout(finishContest, 1500);
+      }
     }
+  });
+}
 
-    // ══════════════════════════════════════════════════════════════
-    //  START CONTEST
-    // ══════════════════════════════════════════════════════════════
-    function startContest() {
-      const name = document.getElementById('inp_name').value.trim();
-      const roll = document.getElementById('inp_roll').value.trim();
-      if (!name || !roll) { toast('Enter your name and roll number.', 'error'); return; }
-      S.name = name; S.roll = roll;
-      S.startTime = new Date();
-      S.res = QS.map(() => ({ status: 'not-attempted', tcRes: [], lang: 'python', attempts: 0, solvedAt: null, timeTaken: 0 }));
-      document.getElementById('topUser').textContent = name + ' · ' + roll;
-      show('contestScreen');
-      buildQNav();
-      loadQ(0);
-      startTimer();
-      // Tab switch detection — 1st switch warns, 2nd switch finishes contest
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-          S.tabHits++;
-          if (S.tabHits === 1) {
-            toast('⚠ WARNING: Tab switch detected! Next switch will end contest.', 'error');
-          } else {
-            clearInterval(S.timerInt);
-            toast('🚫 Contest ended: tab switched ' + S.tabHits + ' times.', 'error');
-            setTimeout(finishContest, 1500);
-          }
-        }
-      });
-    }
+// ══════════════════════════════════════════════════════════════
+//  Q NAV
+// ══════════════════════════════════════════════════════════════
+function buildQNav(){
+  const nav = document.getElementById('qnav');
+  nav.innerHTML = '';
+  QS.forEach((_,i) => {
+    const d = document.createElement('div');
+    d.id = 'qdot_' + i;
+    d.className = 'qdot' + (i===S.qi?' cur':'') + (S.res[i]?.status==='accepted'?' done':'');
+    d.textContent = i+1;
+    d.title = QS[i].title;
+    d.onclick = () => switchQ(i);
+    nav.appendChild(d);
+  });
+}
 
-    // ══════════════════════════════════════════════════════════════
-    //  Q NAV
-    // ══════════════════════════════════════════════════════════════
-    function buildQNav() {
-      const nav = document.getElementById('qnav');
-      nav.innerHTML = '';
-      QS.forEach((_, i) => {
-        const d = document.createElement('div');
-        d.id = 'qdot_' + i;
-        d.className = 'qdot' + (i === S.qi ? ' cur' : '') + (S.res[i]?.status === 'accepted' ? ' done' : '');
-        d.textContent = i + 1;
-        d.title = QS[i].title;
-        d.onclick = () => switchQ(i);
-        nav.appendChild(d);
-      });
-    }
+function updateQNav(){
+  QS.forEach((_,i) => {
+    const d = document.getElementById('qdot_' + i);
+    if(!d) return;
+    d.className = 'qdot' + (i===S.qi?' cur':'') + (S.res[i]?.status==='accepted'?' done':'');
+  });
+}
 
-    function updateQNav() {
-      QS.forEach((_, i) => {
-        const d = document.getElementById('qdot_' + i);
-        if (!d) return;
-        d.className = 'qdot' + (i === S.qi ? ' cur' : '') + (S.res[i]?.status === 'accepted' ? ' done' : '');
-      });
-    }
+function switchQ(i){
+  saveCode();
+  S.qi = i;
+  S.tcRes = [];
+  loadQ(i);
+  updateQNav();
+}
 
-    function switchQ(i) {
-      saveCode();
-      S.qi = i;
-      S.tcRes = [];
-      loadQ(i);
-      updateQNav();
-    }
+// ══════════════════════════════════════════════════════════════
+//  LOAD QUESTION
+// ══════════════════════════════════════════════════════════════
+function loadQ(i){
+  const q = QS[i];
+  S.lang = document.getElementById('langSel').value;
 
-    // ══════════════════════════════════════════════════════════════
-    //  LOAD QUESTION
-    // ══════════════════════════════════════════════════════════════
-    function loadQ(i) {
-      const q = QS[i];
-      S.lang = document.getElementById('langSel').value;
-
-      // Build problem panel
-      let tcHtml = q.tc.map((tc, j) => `
+  // Build problem panel
+  let tcHtml = q.tc.map((tc,j) => `
     <div class="tc-row">
       <div>
-        <div class="tc-label">${tc.v ? 'TC #' + (j + 1) + ' (visible)' : 'TC #' + (j + 1) + ' (hidden)'}</div>
-        <div>${tc.v ? esc(tc.i.replace(/\n/g, ' | ')) : '— hidden —'}</div>
+        <div class="tc-label">${tc.v ? 'TC #'+(j+1)+' (visible)' : 'TC #'+(j+1)+' (hidden)'}</div>
+        <div>${tc.v ? esc(tc.i.replace(/\n/g,' | ')) : '— hidden —'}</div>
       </div>
       <div>
         <div class="tc-label">Expected</div>
@@ -1133,8 +534,8 @@
       <div class="badge" id="b_${j}">—</div>
     </div>`).join('');
 
-      document.getElementById('probPanel').innerHTML = `
-    <div class="prob-tag">Q${i + 1} · ${q.diff}</div>
+  document.getElementById('probPanel').innerHTML = `
+    <div class="prob-tag">Q${i+1} · ${q.diff}</div>
     <div class="prob-title">${q.title}</div>
     <div class="prob-desc">${q.desc}</div>
     <div class="io-label">Input Format</div>
@@ -1146,404 +547,403 @@
     <div class="io-label">Test Cases</div>
     <div class="tc-list">${tcHtml}</div>`;
 
-      // Load saved code or template
-      const key = i + '_' + S.lang;
-      document.getElementById('codeEditor').value = S.codes[key] ?? TPL[S.lang][i] ?? '';
-      document.getElementById('consoleOut').textContent = '// Run your code to see output here...';
+  // Load saved code or template
+  const key = i + '_' + S.lang;
+  document.getElementById('codeEditor').value = S.codes[key] ?? TPL[S.lang][i] ?? '';
+  document.getElementById('consoleOut').textContent = '// Run your code to see output here...';
 
-      // Restore tc badges if already run
-      if (S.res[i].tcRes.length > 0) {
-        S.tcRes = [...S.res[i].tcRes];
-        renderBadges();
-      }
-      updateSubBtn();
-    }
+  // Restore tc badges if already run
+  if(S.res[i].tcRes.length > 0){
+    S.tcRes = [...S.res[i].tcRes];
+    renderBadges();
+  }
+  updateSubBtn();
+}
 
-    function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-    // ══════════════════════════════════════════════════════════════
-    //  LANG SWITCH
-    // ══════════════════════════════════════════════════════════════
-    function onLangChange() {
-      saveCode();
-      S.lang = document.getElementById('langSel').value;
-      const key = S.qi + '_' + S.lang;
-      document.getElementById('codeEditor').value = S.codes[key] ?? TPL[S.lang][S.qi] ?? '';
-      document.getElementById('consoleOut').textContent = '// Language switched. Run to test.';
-    }
+// ══════════════════════════════════════════════════════════════
+//  LANG SWITCH
+// ══════════════════════════════════════════════════════════════
+function onLangChange(){
+  saveCode();
+  S.lang = document.getElementById('langSel').value;
+  const key = S.qi + '_' + S.lang;
+  document.getElementById('codeEditor').value = S.codes[key] ?? TPL[S.lang][S.qi] ?? '';
+  document.getElementById('consoleOut').textContent = '// Language switched. Run to test.';
+}
 
-    function saveCode() {
-      const key = S.qi + '_' + S.lang;
-      S.codes[key] = document.getElementById('codeEditor').value;
-    }
+function saveCode(){
+  const key = S.qi + '_' + S.lang;
+  S.codes[key] = document.getElementById('codeEditor').value;
+}
 
-    // ══════════════════════════════════════════════════════════════
-    //  EXECUTE via Judge0
-    // ══════════════════════════════════════════════════════════════
-    async function execute(code, input, lang) {
-      const body = JSON.stringify({
-        source_code: code,
-        language_id: LANG_ID[lang],
-        stdin: input,
-        cpu_time_limit: 5,
-        wall_time_limit: 10,
+// ══════════════════════════════════════════════════════════════
+//  EXECUTE via Judge0
+// ══════════════════════════════════════════════════════════════
+async function execute(code, input, lang){
+  const body = JSON.stringify({
+    source_code: code,
+    language_id: LANG_ID[lang],
+    stdin: input,
+    cpu_time_limit: 5,
+    wall_time_limit: 10,
+  });
+  const headers = {'Content-Type':'application/json'};
+
+  // Try primary endpoint
+  try{
+    const r = await fetch('https://judge0-ce.p.sulu.sh/submissions?base64_encoded=false&wait=true',
+      {method:'POST', headers, body});
+    if(r.ok) return parseJ0(await r.json());
+  }catch(_){}
+
+  // Try fallback endpoint
+  try{
+    const r = await fetch('https://ce.judge0.com/submissions?base64_encoded=false&wait=true',
+      {method:'POST', headers:{ ...headers, 'X-Auth-Token':'guest' }, body});
+    if(r.ok) return parseJ0(await r.json());
+  }catch(_){}
+
+  return '__ERR__';
+}
+
+function parseJ0(d){
+  const sid = d.status?.id ?? 0;
+  if(sid === 6) return 'CE:' + (d.compile_output||'Compile error').trim();
+  if(sid >= 7 && sid <= 12) return 'RE:' + (d.stderr||d.message||'Runtime Error').trim();
+  if(sid === 5) return 'RE:Time Limit Exceeded';
+  if(sid === 13) return '__ERR__';
+  return (d.stdout||'').trim();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  RUN CODE
+// ══════════════════════════════════════════════════════════════
+async function runCode(){
+  saveCode();
+  const code = document.getElementById('codeEditor').value.trim();
+  if(!code){ toast('Write some code first.','error'); return; }
+
+  const lang = document.getElementById('langSel').value;
+  S.lang = lang;
+  const q = QS[S.qi];
+  const btnR = document.getElementById('btnRun');
+  const cout = document.getElementById('consoleOut');
+
+  btnR.disabled = true;
+  btnR.innerHTML = '<span class="spin"></span> Running...';
+  cout.textContent = 'Running test cases...\n';
+  S.tcRes = [];
+
+  q.tc.forEach((_,j) => {
+    const b = document.getElementById('b_'+j);
+    if(b){ b.className='badge'; b.textContent='...'; }
+  });
+
+  let passed = 0;
+
+  for(let j=0; j<q.tc.length; j++){
+    const tc = q.tc[j];
+    const out = await execute(code, tc.i, lang);
+
+    // Both endpoints failed
+    if(out === '__ERR__'){
+      cout.textContent =
+        '⚠ Judge0 API unreachable.\n\n' +
+        'Check:\n' +
+        '  1. Internet connection\n' +
+        '  2. Disable ad-blocker for this page\n' +
+        '  3. API may be rate-limited — wait 30s and retry';
+      q.tc.forEach((_,k) => {
+        const b = document.getElementById('b_'+k);
+        if(b){ b.className='badge fail'; b.textContent='ERR'; }
       });
-      const headers = { 'Content-Type': 'application/json' };
-
-      // Try primary endpoint
-      try {
-        const r = await fetch('https://judge0-ce.p.sulu.sh/submissions?base64_encoded=false&wait=true',
-          { method: 'POST', headers, body });
-        if (r.ok) return parseJ0(await r.json());
-      } catch (_) { }
-
-      // Try fallback endpoint
-      try {
-        const r = await fetch('https://ce.judge0.com/submissions?base64_encoded=false&wait=true',
-          { method: 'POST', headers: { ...headers, 'X-Auth-Token': 'guest' }, body });
-        if (r.ok) return parseJ0(await r.json());
-      } catch (_) { }
-
-      return '__ERR__';
+      toast('API unreachable. Check console.','error');
+      btnR.disabled=false; btnR.innerHTML='▶ Run'; return;
     }
 
-    function parseJ0(d) {
-      const sid = d.status?.id ?? 0;
-      if (sid === 6) return 'CE:' + (d.compile_output || 'Compile error').trim();
-      if (sid >= 7 && sid <= 12) return 'RE:' + (d.stderr || d.message || 'Runtime Error').trim();
-      if (sid === 5) return 'RE:Time Limit Exceeded';
-      if (sid === 13) return '__ERR__';
-      return (d.stdout || '').trim();
-    }
-
-    // ══════════════════════════════════════════════════════════════
-    //  RUN CODE
-    // ══════════════════════════════════════════════════════════════
-    async function runCode() {
-      saveCode();
-      const code = document.getElementById('codeEditor').value.trim();
-      if (!code) { toast('Write some code first.', 'error'); return; }
-
-      const lang = document.getElementById('langSel').value;
-      S.lang = lang;
-      const q = QS[S.qi];
-      const btnR = document.getElementById('btnRun');
-      const cout = document.getElementById('consoleOut');
-
-      btnR.disabled = true;
-      btnR.innerHTML = '<span class="spin"></span> Running...';
-      cout.textContent = 'Running test cases...\n';
-      S.tcRes = [];
-
-      q.tc.forEach((_, j) => {
-        const b = document.getElementById('b_' + j);
-        if (b) { b.className = 'badge'; b.textContent = '...'; }
+    // Compile / Runtime error
+    if(out.startsWith('CE:') || out.startsWith('RE:')){
+      const type = out.startsWith('CE:') ? 'Compile' : 'Runtime';
+      cout.textContent = type + ' Error:\n' + out.slice(3);
+      q.tc.forEach((_,k) => {
+        S.tcRes[k] = 'fail';
+        const b = document.getElementById('b_'+k);
+        if(b){ b.className='badge ce'; b.textContent=out.startsWith('CE:')? 'CE':'RE'; }
       });
+      toast(type + ' Error — fix your code.','error');
+      const r=S.res[S.qi]; r.attempts++; r.lang=lang;
+      if(r.status==='not-attempted') r.status='attempted';
+      btnR.disabled=false; btnR.innerHTML='▶ Run';
+      updateSubBtn(); return;
+    }
 
-      let passed = 0;
+    const ok = out.trim() === tc.e.trim();
+    S.tcRes[j] = ok ? 'pass' : 'fail';
+    if(ok) passed++;
 
-      for (let j = 0; j < q.tc.length; j++) {
-        const tc = q.tc[j];
-        const out = await execute(code, tc.i, lang);
+    const b = document.getElementById('b_'+j);
+    if(b){ b.className='badge '+(ok?'pass':'fail'); b.textContent=ok?'PASS':'FAIL'; }
 
-        // Both endpoints failed
-        if (out === '__ERR__') {
-          cout.textContent =
-            '⚠ Judge0 API unreachable.\n\n' +
-            'Check:\n' +
-            '  1. Internet connection\n' +
-            '  2. Disable ad-blocker for this page\n' +
-            '  3. API may be rate-limited — wait 30s and retry';
-          q.tc.forEach((_, k) => {
-            const b = document.getElementById('b_' + k);
-            if (b) { b.className = 'badge fail'; b.textContent = 'ERR'; }
-          });
-          toast('API unreachable. Check console.', 'error');
-          btnR.disabled = false; btnR.innerHTML = '▶ Run'; return;
-        }
-
-        // Compile / Runtime error
-        if (out.startsWith('CE:') || out.startsWith('RE:')) {
-          const type = out.startsWith('CE:') ? 'Compile' : 'Runtime';
-          cout.textContent = type + ' Error:\n' + out.slice(3);
-          q.tc.forEach((_, k) => {
-            S.tcRes[k] = 'fail';
-            const b = document.getElementById('b_' + k);
-            if (b) { b.className = 'badge ce'; b.textContent = out.startsWith('CE:') ? 'CE' : 'RE'; }
-          });
-          toast(type + ' Error — fix your code.', 'error');
-          const r = S.res[S.qi]; r.attempts++; r.lang = lang;
-          if (r.status === 'not-attempted') r.status = 'attempted';
-          btnR.disabled = false; btnR.innerHTML = '▶ Run';
-          updateSubBtn(); return;
-        }
-
-        const ok = out.trim() === tc.e.trim();
-        S.tcRes[j] = ok ? 'pass' : 'fail';
-        if (ok) passed++;
-
-        const b = document.getElementById('b_' + j);
-        if (b) { b.className = 'badge ' + (ok ? 'pass' : 'fail'); b.textContent = ok ? 'PASS' : 'FAIL'; }
-
-        if (tc.v) {
-          cout.textContent += 'TC #' + (j + 1) + ': ' + (ok ? '✓ PASSED' : '✗ FAILED') + '\n';
-          if (!ok) {
-            cout.textContent += '  Input   : ' + tc.i.replace(/\n/g, ' | ') + '\n';
-            cout.textContent += '  Expected: ' + tc.e + '\n';
-            cout.textContent += '  Got     : ' + out + '\n';
-          }
-        } else {
-          cout.textContent += 'TC #' + (j + 1) + ' (hidden): ' + (ok ? '✓ PASSED' : '✗ FAILED') + '\n';
-        }
+    if(tc.v){
+      cout.textContent += 'TC #'+(j+1)+': '+(ok?'✓ PASSED':'✗ FAILED')+'\n';
+      if(!ok){
+        cout.textContent += '  Input   : '+tc.i.replace(/\n/g,' | ')+'\n';
+        cout.textContent += '  Expected: '+tc.e+'\n';
+        cout.textContent += '  Got     : '+out+'\n';
       }
-
-      cout.textContent += '\n' + passed + '/' + q.tc.length + ' test cases passed.';
-      if (passed === q.tc.length) {
-        cout.textContent += '\n✓ All passed! Click Submit & Next.';
-        toast('All test cases passed! 🎉', 'success');
-      } else {
-        toast(passed + '/' + q.tc.length + ' passed. Fix your code.', 'error');
-      }
-
-      const r = S.res[S.qi];
-      r.attempts++;
-      r.tcRes = [...S.tcRes];
-      r.lang = lang;
-      if (r.status === 'not-attempted') r.status = 'attempted';
-
-      btnR.disabled = false; btnR.innerHTML = '▶ Run';
-      updateSubBtn();
+    } else {
+      cout.textContent += 'TC #'+(j+1)+' (hidden): '+(ok?'✓ PASSED':'✗ FAILED')+'\n';
     }
+  }
 
-    function updateSubBtn() {
-      const ok = S.tcRes.length > 0 && S.tcRes.every(x => x === 'pass');
-      const btn = document.getElementById('btnSub');
-      btn.disabled = !ok;
-      btn.textContent = S.qi === QS.length - 1 ? '✓ Finish' : '✓ Submit & Next';
-    }
+  cout.textContent += '\n' + passed + '/' + q.tc.length + ' test cases passed.';
+  if(passed === q.tc.length){
+    cout.textContent += '\n✓ All passed! Click Submit & Next.';
+    toast('All test cases passed! 🎉','success');
+  } else {
+    toast(passed + '/' + q.tc.length + ' passed. Fix your code.','error');
+  }
 
-    // ══════════════════════════════════════════════════════════════
-    //  SUBMIT QUESTION
-    // ══════════════════════════════════════════════════════════════
-    function submitQ() {
-      if (!S.tcRes.every(x => x === 'pass')) { toast('Not all test cases pass.', 'error'); return; }
-      saveCode();
-      const r = S.res[S.qi];
-      r.status = 'accepted';
-      r.solvedAt = new Date();
-      r.timeTaken = Math.floor((new Date() - S.startTime) / 1000);
-      r.lang = document.getElementById('langSel').value;
+  const r = S.res[S.qi];
+  r.attempts++;
+  r.tcRes = [...S.tcRes];
+  r.lang = lang;
+  if(r.status==='not-attempted') r.status='attempted';
 
-      toast('Q' + (S.qi + 1) + ' Accepted! 🎉', 'success');
+  btnR.disabled=false; btnR.innerHTML='▶ Run';
+  updateSubBtn();
+}
 
-      if (S.qi < QS.length - 1) {
-        S.qi++;
-        S.tcRes = [];
-        updateQNav();
-        loadQ(S.qi);
-      } else {
-        clearInterval(S.timerInt);
-        finishContest();
-      }
-    }
+function updateSubBtn(){
+  const ok = S.tcRes.length>0 && S.tcRes.every(x=>x==='pass');
+  const btn = document.getElementById('btnSub');
+  btn.disabled = !ok;
+  btn.textContent = S.qi===QS.length-1 ? '✓ Finish' : '✓ Submit & Next';
+}
 
-    // ══════════════════════════════════════════════════════════════
-    //  TIMER
-    // ══════════════════════════════════════════════════════════════
-    function startTimer() {
-      S.timerInt = setInterval(() => {
-        S.timerLeft--;
-        const m = Math.floor(S.timerLeft / 60), s = S.timerLeft % 60;
-        const el = document.getElementById('timerEl');
-        el.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
-        el.className = 'timer' + (S.timerLeft <= 300 ? ' danger' : S.timerLeft <= 900 ? ' warn' : '');
-        if (S.timerLeft <= 0) { clearInterval(S.timerInt); toast('Time up!', 'error'); setTimeout(finishContest, 1000); }
-      }, 1000);
-    }
+// ══════════════════════════════════════════════════════════════
+//  SUBMIT QUESTION
+// ══════════════════════════════════════════════════════════════
+function submitQ(){
+  if(!S.tcRes.every(x=>x==='pass')){ toast('Not all test cases pass.','error'); return; }
+  saveCode();
+  const r = S.res[S.qi];
+  r.status = 'accepted';
+  r.solvedAt = new Date();
+  r.timeTaken = Math.floor((new Date()-S.startTime)/1000);
+  r.lang = document.getElementById('langSel').value;
 
-    // ══════════════════════════════════════════════════════════════
-    //  FINISH + REPORT
-    // ══════════════════════════════════════════════════════════════
-    function finishContest() {
-      clearInterval(S.timerInt);
-      saveCode();
-      renderReport();
-      sendToSheet();
-      show('reportScreen');
-    }
+  toast('Q'+(S.qi+1)+' Accepted! 🎉','success');
 
-    function renderReport() {
-      const solved = S.res.filter(r => r.status === 'accepted').length;
-      const elapsed = S.startTime ? Math.floor((new Date() - S.startTime) / 1000) : 0;
-      document.getElementById('rScore').textContent = solved + '/5';
-      document.getElementById('rMeta').textContent =
-        S.name + ' · ' + S.roll + ' · ' + new Date().toLocaleString() +
-        ' · Time: ' + Math.floor(elapsed / 60) + 'm ' + elapsed % 60 + 's' +
-        ' · Tab switches: ' + S.tabHits;
+  if(S.qi < QS.length-1){
+    S.qi++;
+    S.tcRes = [];
+    updateQNav();
+    loadQ(S.qi);
+  } else {
+    clearInterval(S.timerInt);
+    finishContest();
+  }
+}
 
-      document.getElementById('rContent').innerHTML = QS.map((q, i) => {
-        const r = S.res[i];
-        const tcp = r.tcRes.filter(x => x === 'pass').length;
-        const lbl = r.status === 'accepted' ? 'Accepted' : r.status === 'attempted' ? 'Attempted' : 'Not Attempted';
-        const pct = r.tcRes.length > 0 ? Math.round(tcp / q.tc.length * 100) : 0;
-        let det = r.status === 'not-attempted'
-          ? '<div class="rq-detail" style="color:var(--dim)">Not attempted.</div>'
-          : `<div class="rq-detail">
+// ══════════════════════════════════════════════════════════════
+//  TIMER
+// ══════════════════════════════════════════════════════════════
+function startTimer(){
+  S.timerInt = setInterval(() => {
+    S.timerLeft--;
+    const m = Math.floor(S.timerLeft/60), s = S.timerLeft%60;
+    const el = document.getElementById('timerEl');
+    el.textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+    el.className = 'timer' + (S.timerLeft<=300?' danger':S.timerLeft<=900?' warn':'');
+    if(S.timerLeft<=0){ clearInterval(S.timerInt); toast('Time up!','error'); setTimeout(finishContest,1000); }
+  }, 1000);
+}
+
+// ══════════════════════════════════════════════════════════════
+//  FINISH + REPORT
+// ══════════════════════════════════════════════════════════════
+function finishContest(){
+  clearInterval(S.timerInt);
+  saveCode();
+  renderReport();
+  sendToSheet();
+  show('reportScreen');
+}
+
+function renderReport(){
+  const solved = S.res.filter(r=>r.status==='accepted').length;
+  const elapsed = S.startTime ? Math.floor((new Date()-S.startTime)/1000) : 0;
+  document.getElementById('rScore').textContent = solved+'/5';
+  document.getElementById('rMeta').textContent =
+    S.name+' · '+S.roll+' · '+new Date().toLocaleString()+
+    ' · Time: '+Math.floor(elapsed/60)+'m '+elapsed%60+'s'+
+    ' · Tab switches: '+S.tabHits;
+
+  document.getElementById('rContent').innerHTML = QS.map((q,i)=>{
+    const r = S.res[i];
+    const tcp = r.tcRes.filter(x=>x==='pass').length;
+    const lbl = r.status==='accepted'?'Accepted':r.status==='attempted'?'Attempted':'Not Attempted';
+    const pct = r.tcRes.length>0 ? Math.round(tcp/q.tc.length*100) : 0;
+    let det = r.status==='not-attempted'
+      ? '<div class="rq-detail" style="color:var(--dim)">Not attempted.</div>'
+      : `<div class="rq-detail">
           Lang: <span class="hl">${r.lang.toUpperCase()}</span> ·
           Attempts: <span class="hl">${r.attempts}</span> ·
           TC: <span class="hl">${tcp}/${q.tc.length} passed</span>
-          ${r.status === 'accepted' ? ' · Solved in <span class="hl">' + Math.floor(r.timeTaken / 60) + 'm ' + r.timeTaken % 60 + 's</span>' : ''}
+          ${r.status==='accepted'?' · Solved in <span class="hl">'+Math.floor(r.timeTaken/60)+'m '+r.timeTaken%60+'s</span>':''}
         </div>
         <div class="pbar-wrap"><div class="pbar" style="width:${pct}%"></div></div>`;
-        return `<div class="rq">
+    return `<div class="rq">
       <div class="rq-hdr">
-        <div class="rq-title">Q${i + 1}. ${q.title}</div>
+        <div class="rq-title">Q${i+1}. ${q.title}</div>
         <div class="chip ${r.status}">${lbl}</div>
       </div>${det}</div>`;
-      }).join('');
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════════
+//  SEND REPORT VIA EMAILJS
+// ══════════════════════════════════════════════════════════════
+async function sendToSheet(){
+  const el = document.getElementById('sheetStatus');
+
+  if(EMAILJS_PUBLIC_KEY === 'PASTE_PUBLIC_KEY'){
+    el.textContent = '⚠ EmailJS not configured — download report manually.';
+    el.style.color = 'var(--yellow)';
+    return;
+  }
+
+  el.textContent = '⏳ Sending report to your email...';
+  el.style.color = 'var(--dim)';
+
+  // Build plain text report
+  const elapsed = S.startTime ? Math.floor((new Date()-S.startTime)/1000) : 0;
+  const solved  = S.res.filter(r=>r.status==='accepted').length;
+
+  let reportText = '';
+  QS.forEach((q,i)=>{
+    const r   = S.res[i];
+    const tcp = r.tcRes.filter(x=>x==='pass').length;
+    const st  = r.status==='accepted'?'✅ ACCEPTED':r.status==='attempted'?'🟡 ATTEMPTED':'❌ NOT ATTEMPTED';
+    reportText += `Q${i+1}. ${q.title}\n`;
+    reportText += `    Status   : ${st}\n`;
+    if(r.status !== 'not-attempted'){
+      reportText += `    Language : ${(r.lang||'-').toUpperCase()}\n`;
+      reportText += `    Attempts : ${r.attempts}\n`;
+      reportText += `    TC Passed: ${tcp}/${q.tc.length}\n`;
+      if(r.status==='accepted')
+        reportText += `    Time     : ${Math.floor(r.timeTaken/60)}m ${r.timeTaken%60}s\n`;
     }
+    reportText += '\n';
+  });
 
-    // ══════════════════════════════════════════════════════════════
-    //  SEND REPORT VIA EMAILJS
-    // ══════════════════════════════════════════════════════════════
-    async function sendToSheet() {
-      const el = document.getElementById('sheetStatus');
+  const params = {
+    to_email:    REPORT_TO_EMAIL,
+    student_name: S.name,
+    roll_number:  S.roll,
+    submit_time:  new Date().toLocaleString(),
+    time_used:    Math.floor(elapsed/60)+'m '+elapsed%60+'s',
+    total_solved: solved+'/5',
+    tab_switches: S.tabHits,
+    report_body:  reportText,
+  };
 
-      if (EMAILJS_PUBLIC_KEY === 'PASTE_PUBLIC_KEY') {
-        el.textContent = '⚠ EmailJS not configured — download report manually.';
-        el.style.color = 'var(--yellow)';
-        return;
-      }
+  try{
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params);
+    el.textContent = '✅ Report sent to your email!';
+    el.style.color = 'var(--green)';
+    toast('Report emailed successfully!','success');
+  } catch(err){
+    console.error('EmailJS error:', err);
+    el.textContent = '✗ Email failed — download report manually.';
+    el.style.color = 'var(--red)';
+  }
+}
 
-      el.textContent = '⏳ Sending report to your email...';
-      el.style.color = 'var(--dim)';
-
-      // Build plain text report
-      const elapsed = S.startTime ? Math.floor((new Date() - S.startTime) / 1000) : 0;
-      const solved = S.res.filter(r => r.status === 'accepted').length;
-
-      let reportText = '';
-      QS.forEach((q, i) => {
-        const r = S.res[i];
-        const tcp = r.tcRes.filter(x => x === 'pass').length;
-        const st = r.status === 'accepted' ? '✅ ACCEPTED' : r.status === 'attempted' ? '🟡 ATTEMPTED' : '❌ NOT ATTEMPTED';
-        reportText += `Q${i + 1}. ${q.title}\n`;
-        reportText += `    Status   : ${st}\n`;
-        if (r.status !== 'not-attempted') {
-          reportText += `    Language : ${(r.lang || '-').toUpperCase()}\n`;
-          reportText += `    Attempts : ${r.attempts}\n`;
-          reportText += `    TC Passed: ${tcp}/${q.tc.length}\n`;
-          if (r.status === 'accepted')
-            reportText += `    Time     : ${Math.floor(r.timeTaken / 60)}m ${r.timeTaken % 60}s\n`;
-        }
-        reportText += '\n';
-      });
-
-      const params = {
-        to_email: REPORT_TO_EMAIL,
-        student_name: S.name,
-        roll_number: S.roll,
-        submit_time: new Date().toLocaleString(),
-        time_used: Math.floor(elapsed / 60) + 'm ' + elapsed % 60 + 's',
-        total_solved: solved + '/5',
-        tab_switches: S.tabHits,
-        report_body: reportText,
-      };
-
-      try {
-        emailjs.init(EMAILJS_PUBLIC_KEY);
-        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params);
-        el.textContent = '✅ Report sent to your email!';
-        el.style.color = 'var(--green)';
-        toast('Report emailed successfully!', 'success');
-      } catch (err) {
-        console.error('EmailJS error:', err);
-        el.textContent = '✗ Email failed — download report manually.';
-        el.style.color = 'var(--red)';
-      }
+// ══════════════════════════════════════════════════════════════
+//  DOWNLOAD REPORT
+// ══════════════════════════════════════════════════════════════
+function downloadReport(){
+  const elapsed = S.startTime ? Math.floor((new Date()-S.startTime)/1000) : 0;
+  const solved = S.res.filter(r=>r.status==='accepted').length;
+  let t = 'CODEARENA — CONTEST REPORT\n' + '='.repeat(48) + '\n';
+  t += 'Name       : '+S.name+'\n';
+  t += 'Roll No    : '+S.roll+'\n';
+  t += 'Date       : '+new Date().toLocaleString()+'\n';
+  t += 'Time Used  : '+Math.floor(elapsed/60)+'m '+elapsed%60+'s\n';
+  t += 'Score      : '+solved+'/5 questions solved\n';
+  t += 'Tab Switches: '+S.tabHits+'\n\n';
+  QS.forEach((q,i)=>{
+    const r=S.res[i], tcp=r.tcRes.filter(x=>x==='pass').length;
+    t += 'Q'+(i+1)+'. '+q.title+'\n';
+    t += '    Status   : '+(r.status==='accepted'?'ACCEPTED':r.status==='attempted'?'ATTEMPTED':'NOT ATTEMPTED')+'\n';
+    if(r.status!=='not-attempted'){
+      t += '    Language : '+r.lang.toUpperCase()+'\n';
+      t += '    Attempts : '+r.attempts+'\n';
+      t += '    TC Passed: '+tcp+'/'+q.tc.length+'\n';
+      if(r.status==='accepted') t += '    Time     : '+Math.floor(r.timeTaken/60)+'m '+r.timeTaken%60+'s\n';
     }
+    t += '\n';
+  });
+  t += '='.repeat(48)+'\nGenerated by CodeArena\n';
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([t],{type:'text/plain'}));
+  a.download='CodeArena_'+S.roll+'_'+Date.now()+'.txt';
+  a.click();
+}
 
-    // ══════════════════════════════════════════════════════════════
-    //  DOWNLOAD REPORT
-    // ══════════════════════════════════════════════════════════════
-    function downloadReport() {
-      const elapsed = S.startTime ? Math.floor((new Date() - S.startTime) / 1000) : 0;
-      const solved = S.res.filter(r => r.status === 'accepted').length;
-      let t = 'CODEARENA — CONTEST REPORT\n' + '='.repeat(48) + '\n';
-      t += 'Name       : ' + S.name + '\n';
-      t += 'Roll No    : ' + S.roll + '\n';
-      t += 'Date       : ' + new Date().toLocaleString() + '\n';
-      t += 'Time Used  : ' + Math.floor(elapsed / 60) + 'm ' + elapsed % 60 + 's\n';
-      t += 'Score      : ' + solved + '/5 questions solved\n';
-      t += 'Tab Switches: ' + S.tabHits + '\n\n';
-      QS.forEach((q, i) => {
-        const r = S.res[i], tcp = r.tcRes.filter(x => x === 'pass').length;
-        t += 'Q' + (i + 1) + '. ' + q.title + '\n';
-        t += '    Status   : ' + (r.status === 'accepted' ? 'ACCEPTED' : r.status === 'attempted' ? 'ATTEMPTED' : 'NOT ATTEMPTED') + '\n';
-        if (r.status !== 'not-attempted') {
-          t += '    Language : ' + r.lang.toUpperCase() + '\n';
-          t += '    Attempts : ' + r.attempts + '\n';
-          t += '    TC Passed: ' + tcp + '/' + q.tc.length + '\n';
-          if (r.status === 'accepted') t += '    Time     : ' + Math.floor(r.timeTaken / 60) + 'm ' + r.timeTaken % 60 + 's\n';
-        }
-        t += '\n';
-      });
-      t += '='.repeat(48) + '\nGenerated by CodeArena\n';
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(new Blob([t], { type: 'text/plain' }));
-      a.download = 'CodeArena_' + S.roll + '_' + Date.now() + '.txt';
-      a.click();
-    }
+// ══════════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════════
+function renderBadges(){
+  S.tcRes.forEach((r,j)=>{
+    const b=document.getElementById('b_'+j);
+    if(b){ b.className='badge '+(r==='pass'?'pass':'fail'); b.textContent=r==='pass'?'PASS':'FAIL'; }
+  });
+}
 
-    // ══════════════════════════════════════════════════════════════
-    //  HELPERS
-    // ══════════════════════════════════════════════════════════════
-    function renderBadges() {
-      S.tcRes.forEach((r, j) => {
-        const b = document.getElementById('b_' + j);
-        if (b) { b.className = 'badge ' + (r === 'pass' ? 'pass' : 'fail'); b.textContent = r === 'pass' ? 'PASS' : 'FAIL'; }
-      });
-    }
+let _toastTimer;
+function toast(msg, type='info'){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className='show '+type;
+  clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(()=>{ el.className=''; },3000);
+}
 
-    let _toastTimer;
-    function toast(msg, type = 'info') {
-      const el = document.getElementById('toast');
-      el.textContent = msg; el.className = 'show ' + type;
-      clearTimeout(_toastTimer);
-      _toastTimer = setTimeout(() => { el.className = ''; }, 3000);
-    }
+// Tab = 4 spaces in editor
+document.addEventListener('keydown', e=>{
+  if(e.key==='Tab' && document.activeElement.id==='codeEditor'){
+    e.preventDefault();
+    const el=document.activeElement, s=el.selectionStart, en=el.selectionEnd;
+    el.value=el.value.substring(0,s)+'    '+el.value.substring(en);
+    el.selectionStart=el.selectionEnd=s+4;
+  }
+});
 
-    // Tab = 4 spaces in editor
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Tab' && document.activeElement.id === 'codeEditor') {
+// ── BLOCK COPY / PASTE / CUT / DRAG in code editor ──
+(function(){
+  const ed = () => document.getElementById('codeEditor');
+  ['copy','cut','paste'].forEach(evt =>{
+    document.addEventListener(evt, e=>{
+      if(document.activeElement === ed()){
         e.preventDefault();
-        const el = document.activeElement, s = el.selectionStart, en = el.selectionEnd;
-        el.value = el.value.substring(0, s) + '    ' + el.value.substring(en);
-        el.selectionStart = el.selectionEnd = s + 4;
+        toast('Copy/Paste is disabled. Type your code manually.','error');
       }
-    });
-
-    // ── BLOCK COPY / PASTE / CUT / DRAG in code editor ──
-    (function () {
-      const ed = () => document.getElementById('codeEditor');
-      ['copy', 'cut', 'paste'].forEach(evt => {
-        document.addEventListener(evt, e => {
-          if (document.activeElement === ed()) {
-            e.preventDefault();
-            toast('Copy/Paste is disabled. Type your code manually.', 'error');
-          }
-        }, true);
-      });
-      document.addEventListener('dragover', e => { if (document.activeElement === ed()) e.preventDefault(); }, true);
-      document.addEventListener('drop', e => {
-        if (e.target === ed()) { e.preventDefault(); toast('Drag & drop is disabled.', 'error'); }
-      }, true);
-      // Block right-click context menu on editor
-      document.addEventListener('contextmenu', e => {
-        if (e.target === ed()) { e.preventDefault(); toast('Right-click disabled.', 'error'); }
-      });
-    })();
-  </script>
+    }, true);
+  });
+  document.addEventListener('dragover', e=>{ if(document.activeElement===ed()) e.preventDefault(); }, true);
+  document.addEventListener('drop', e=>{
+    if(e.target === ed()){ e.preventDefault(); toast('Drag & drop is disabled.','error'); }
+  }, true);
+  // Block right-click context menu on editor
+  document.addEventListener('contextmenu', e=>{
+    if(e.target === ed()){ e.preventDefault(); toast('Right-click disabled.','error'); }
+  });
+})();
+</script>
 </body>
-
 </html>
