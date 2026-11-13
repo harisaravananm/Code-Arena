@@ -1,7 +1,8 @@
-﻿# Code Arena
+# Code Arena
 
-[![License](https://img.shields.io/github/license/harisaravananm/Code-Arena?style=for-the-badge)](https://github.com/harisaravananm/Code-Arena/blob/main/LICENSE)
-[![Last commit](https://img.shields.io/github/last-commit/harisaravananm/Code-Arena?style=for-the-badge)](https://github.com/harisaravananm/Code-Arena/commits/main)
+<!-- tech-version-badges -->
+![HTML 5](https://img.shields.io/badge/HTML-5-E34F26?style=for-the-badge&logo=html5&logoColor=white) ![CSS 3](https://img.shields.io/badge/CSS-3-1572B6?style=for-the-badge&logo=css3&logoColor=white) ![JavaScript ES6](https://img.shields.io/badge/JavaScript-ES6-F7DF1E?style=for-the-badge&logo=javascript&logoColor=white)
+<!-- /tech-version-badges -->
 
 A web-based coding contest platform concept with a participant-facing interface for coding challenges.
 
